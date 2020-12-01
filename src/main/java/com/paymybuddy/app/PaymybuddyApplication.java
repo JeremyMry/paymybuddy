@@ -9,7 +9,6 @@ public class PaymybuddyApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PaymybuddyApplication.class, args);
 	}
-
 }
 
 
