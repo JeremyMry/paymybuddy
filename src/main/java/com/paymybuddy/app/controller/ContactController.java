@@ -2,25 +2,25 @@ package com.paymybuddy.app.controller;
 
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/paymybuddy/contact")
+@RestController()
 public class ContactController {
 
-    @GetMapping("")
+    @GetMapping("/contact")
     public String getContact() {
         return "contact list";
     }
 
-    @PostMapping("/paymybuddy/contact/add")
+    @PostMapping("/contact/add")
     public String addContact() {
         return "add contact";
     }
 
-    @PutMapping("/paymybuddy/contact/put")
+    @PutMapping("/contact/put")
     public String putContact() {
         return "put contact";
     }
 
-    @DeleteMapping("/paymybuddy/contact/delete")
+    @DeleteMapping("/contact/delete")
     public String deleteContact() {
         return "delete contact";
     }

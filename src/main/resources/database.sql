@@ -21,4 +21,12 @@ FOREIGN KEY (ID)
 REFERENCES user(ID)
 );
 
+create table contact(
+ID int PRIMARY KEY AUTO_INCREMENT,
+EMAIL varchar(64) NOT NULL,
+FIRST_NAME varchar(64) NOT NULL,
+FOREIGN KEY (EMAIL)
+REFERENCES user(EMAIL)
+);
+
 commit;

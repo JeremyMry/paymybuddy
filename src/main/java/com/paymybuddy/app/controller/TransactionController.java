@@ -5,15 +5,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/paymybuddy/transaction")
+@RestController()
 public class TransactionController {
 
-    @GetMapping("")
+    @GetMapping("/transactions")
     public String getAllTransactions(@RequestParam String id) {
         return "transaction";
     }
 
-    @PostMapping("/paymybuddy/transaction/add")
+    @PostMapping("transactions/add")
     public String createTransaction() {
         return "add transaction";
     }
