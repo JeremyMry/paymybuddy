@@ -7,26 +7,36 @@ import javax.persistence.*;
 public class User {
 
     @Id
-    @GeneratedValue
-    @Column(name = "Id", nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
-    @Column(name = "firstName", length = 64, nullable = false)
+    @Column(length = 64, nullable = false)
     private String firstName;
 
-    @Column(name = "lastName", length = 64, nullable = false)
+    @Column(length = 64, nullable = false)
     private String lastName;
 
-    @Column(name = "email", length = 64, nullable = false)
+    @Column(length = 64, nullable = false)
     private String email;
 
-    @Column(name= "password", length = 64, nullable = false)
+    @Column(length = 64, nullable = false)
     private String password;
 
-    @Column(name = "wallet", nullable = false)
+    @Column(nullable = false)
     private Integer wallet;
 
-    public Long getId() { return id; }
+    public User() {}
+
+    public User(Integer id, String firstName, String lastName, String email, String password, Integer wallet) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.wallet = wallet;
+    }
+
+    public Integer getId() { return id; }
     public String getFirstName() {
         return firstName;
     }
@@ -41,7 +51,7 @@ public class User {
         return wallet;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public void setFirstName(String firstName) {

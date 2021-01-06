@@ -3,24 +3,23 @@ package com.paymybuddy.app.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="transaction")
 public class Transaction {
 
     @Id
     @GeneratedValue
-    @Column(name="Id", nullable = false)
+    @Column(nullable = false)
     private Long id;
 
-    @Column(name="creditor", length = 64, nullable = false)
+    @Column(length = 64, nullable = false)
     private String creditor;
 
-    @Column(name="debtor", length = 64, nullable = false)
+    @Column(length = 64, nullable = false)
     private String debtor;
 
-    @Column(name="reference", nullable = false)
+    @Column(nullable = false)
     private String reference;
 
-    @Column(name="amount")
+    @Column
     private int amount;
 
     public Long getId() { return id; }
