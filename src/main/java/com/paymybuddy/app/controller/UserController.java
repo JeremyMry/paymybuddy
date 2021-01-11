@@ -20,8 +20,8 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/profile/{id}")
-    public ResponseEntity<User> getProfile(@PathVariable("id") Integer id) {
-        Optional<User> userData = userRepository.findById(id);
+    public ResponseEntity<User> getProfile(@PathVariable("id") Integer userId) {
+        Optional<User> userData = userRepository.findById(userId);
         return userData.map(user -> new ResponseEntity<>(user, HttpStatus.FOUND)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -36,19 +36,25 @@ public class UserController {
     }
 
     @PutMapping("/profile/put/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
-        User userData = userService.putUser(user);
-        if(userData == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<User> updateUser(@PathVariable("id") Integer userId, @RequestBody User user) {
+        Optional<User> userData = userRepository.findById(userId);
+        if (userData.isPresent()) {
+            User user1 = userData.get();
+            user1.setFirstName(user.getFirstName());
+            user1.setLastName(user.getLastName());
+            user1.setEmail(user.getEmail());
+            user1.setPassword(user.getPassword());
+            user1.setWallet(user.getWallet());
+            return new ResponseEntity<>(userRepository.save(user1), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(userRepository.save(userData), HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/profile/delete/{id}")
-    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Integer userId) {
         try {
-            userRepository.deleteById((int) id);
+            userRepository.deleteById(userId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

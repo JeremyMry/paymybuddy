@@ -6,9 +6,8 @@ import javax.persistence.*;
 public class Contact {
 
     @Id
-    @GeneratedValue
-    @Column(nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer contactId;
 
     @Column(length = 64, nullable = false)
     private String email;
@@ -16,10 +15,25 @@ public class Contact {
     @Column(length = 64, nullable = false)
     private String firstName;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @ManyToOne
+    @JoinColumn(name="user_id", referencedColumnName="userId")
+    private User user;
+
+    public Contact() {}
+
+    public Contact(Integer contactId, String email, String firstName, User user) {
+        this.contactId = contactId;
+        this.email = email;
+        this.firstName = firstName;
+        this.user = user;
+    }
+
+    public Integer getId() { return contactId; }
+    public void setId(Integer contactId) { this.contactId = contactId; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }
