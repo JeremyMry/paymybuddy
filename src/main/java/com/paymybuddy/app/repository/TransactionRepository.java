@@ -10,6 +10,9 @@ import java.util.List;
 
 public interface TransactionRepository extends CrudRepository<Transaction, Integer> {
 
-    @Query("FROM Transaction t where c.user.id = :userId")
-    List<Transaction> findAllByCurrentUser(@Param("userId") Integer userId);
+    @Query("FROM Transaction t where t.debtor.id = :userId")
+    List<Transaction> findAllByCurrentDebtor(@Param("userId") Integer userId);
+
+    @Query("FROM Transaction t where t.creditor.id = :userId")
+    List<Transaction> findAllByCurrentCreditor(@Param("userId") Integer userId);
 }

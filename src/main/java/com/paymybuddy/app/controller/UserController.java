@@ -19,8 +19,8 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/profile/{id}")
-    public ResponseEntity<User> getProfile(@PathVariable("id") Integer userId) {
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<User> getProfile(@PathVariable("userId") Integer userId) {
         Optional<User> userData = userRepository.findById(userId);
         return userData.map(user -> new ResponseEntity<>(user, HttpStatus.FOUND)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -35,8 +35,8 @@ public class UserController {
         }
     }
 
-    @PutMapping("/profile/put/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable("id") Integer userId, @RequestBody User user) {
+    @PutMapping("/profile/put/{userId}")
+    public ResponseEntity<User> updateUser(@PathVariable("userId") Integer userId, @RequestBody User user) {
         Optional<User> userData = userRepository.findById(userId);
         if (userData.isPresent()) {
             User user1 = userData.get();
@@ -51,8 +51,8 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/profile/delete/{id}")
-    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Integer userId) {
+    @DeleteMapping("/profile/delete/{userId}")
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("userId") Integer userId) {
         try {
             userRepository.deleteById(userId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -1,6 +1,5 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.model.Contact;
 import com.paymybuddy.app.model.Transaction;
 import com.paymybuddy.app.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +15,20 @@ public class TransactionController {
     @Autowired
     TransactionRepository transactionrepository;
 
-    @GetMapping("/transactions/{id}")
-    public ResponseEntity<List> getAllTransactions(@PathVariable("id") Integer userId) {
+    @GetMapping("/transactions/made/{UserId}")
+    public ResponseEntity<List> getAllTransactionsDone(@PathVariable("UserId") Integer userId) {
         try {
-            List<Transaction> transactionData = transactionrepository.findAllByCurrentUser(userId);
+            List<Transaction> transactionData = transactionrepository.findAllByCurrentDebtor(userId);
+            return new ResponseEntity<>(transactionData, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/transactions/received/{UserId}")
+    public ResponseEntity<List> getAllTransactionsReceived(@PathVariable("UserId") Integer userId) {
+        try {
+            List<Transaction> transactionData = transactionrepository.findAllByCurrentCreditor(userId);
             return new ResponseEntity<>(transactionData, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -29,7 +38,7 @@ public class TransactionController {
     @PostMapping("transactions")
     public ResponseEntity<Transaction> addTransaction(@RequestBody Transaction transaction) {
         try {
-            Transaction transaction1 = transactionrepository.save(new Transaction(transaction.getId(), transaction.getDebtor(), transaction.getCreditor(), transaction.getReference(), transaction.getAmount(), transaction.getUser()));
+            Transaction transaction1 = transactionrepository.save(new Transaction(transaction.getId(), transaction.getDebtor(), transaction.getCreditor(), transaction.getReference(), transaction.getAmount()));
             return new ResponseEntity<>(transaction1, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

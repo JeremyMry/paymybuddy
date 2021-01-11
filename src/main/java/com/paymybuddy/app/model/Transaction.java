@@ -10,12 +10,6 @@ public class Transaction {
     @Column(nullable = false)
     private Integer transactionId;
 
-    @Column(length = 64, nullable = false)
-    private String creditor;
-
-    @Column(length = 64, nullable = false)
-    private String debtor;
-
     @Column(nullable = false)
     private String reference;
 
@@ -23,31 +17,32 @@ public class Transaction {
     private int amount;
 
     @ManyToOne
-    @JoinColumn(name="user_id", referencedColumnName="userId")
-    private User user;
+    @JoinColumn(name="creditor_id", referencedColumnName="userId")
+    private User creditor;
+
+    @ManyToOne
+    @JoinColumn(name="debtor_id", referencedColumnName="userId")
+    private User debtor;
 
     public Transaction() {}
 
-    public Transaction(Integer transactionId, String creditor, String debtor, String reference, int amount, User user) {
+    public Transaction(Integer transactionId, User creditor, User debtor, String reference, int amount) {
         this.transactionId = transactionId;
         this.creditor = creditor;
         this.debtor = debtor;
         this.reference = reference;
         this.amount = amount;
-        this.user = user;
     }
 
     public Integer getId() { return transactionId; }
-    public String getCreditor() { return creditor; }
-    public String getDebtor() { return debtor; }
+    public User getCreditor() { return creditor; }
+    public User getDebtor() { return debtor; }
     public String getReference() { return reference; }
     public int getAmount() { return amount; }
-    public User getUser() { return user; }
 
     public void setId(Integer id) { this.transactionId = id; }
-    public void setCreditor(String creditor) { this.creditor = creditor; }
-    public void setDebtor(String debtor) { this.debtor = debtor; }
+    public void setCreditor(User creditor) { this.creditor = creditor; }
+    public void setDebtor(User debtor) { this.debtor = debtor; }
     public void setReference(String reference) { this.reference = reference; }
     public void setAmount(int amount) { this.amount = amount; }
-    public void setUser(User user) { this.user = user; }
 }
