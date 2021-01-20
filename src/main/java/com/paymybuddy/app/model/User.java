@@ -1,13 +1,14 @@
 package com.paymybuddy.app.model;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name="user")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
     @Column(length = 64, nullable = false)
@@ -26,6 +27,14 @@ public class User {
     private Integer wallet;
 
     public User() {}
+
+    public User(String firstName, String lastName, String email, String password, Integer wallet) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.wallet = wallet;
+    }
 
     public User(Integer userId, String firstName, String lastName, String email, String password, Integer wallet) {
         this.userId = userId;

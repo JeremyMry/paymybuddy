@@ -1,12 +1,15 @@
 package com.paymybuddy.app.model;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+
 
 @Entity
 public class Contact {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer contactId;
 
     @Column(length = 64, nullable = false)
@@ -16,13 +19,20 @@ public class Contact {
     private String firstName;
 
     @ManyToOne
-    @JoinColumn(name="user_id", referencedColumnName="userId")
+    @JoinColumn(name="user_id")
     private User user;
+
 
     public Contact() {}
 
     public Contact(Integer contactId, String email, String firstName, User user) {
         this.contactId = contactId;
+        this.email = email;
+        this.firstName = firstName;
+        this.user = user;
+    }
+
+    public Contact(String email, String firstName, User user) {
         this.email = email;
         this.firstName = firstName;
         this.user = user;

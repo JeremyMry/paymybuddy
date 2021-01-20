@@ -1,7 +1,7 @@
 package com.paymybuddy.app.controller;
 
 import com.paymybuddy.app.model.Contact;
-import com.paymybuddy.app.repository.ContactRepository;
+import com.paymybuddy.app.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,48 +14,31 @@ import java.util.Optional;
 public class ContactController {
 
     @Autowired
-    ContactRepository contactRepository;
+    ContactService contactService;
 
-    @GetMapping("/contact/{userId}")
+    @GetMapping("/contact/{contactId}")
+    public ResponseEntity<Optional> getContact(@PathVariable("contactId") Integer contactId) {
+        return new ResponseEntity<>(contactService.getContact(contactId), HttpStatus.OK);
+    }
+
+    @GetMapping("/contact/all/{userId}")
     public ResponseEntity<List> getAllContacts(@PathVariable("userId") Integer userId) {
-        try {
-            List<Contact> contactData = contactRepository.findAllByCurrentUser(userId);
-            return new ResponseEntity<>(contactData, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(contactService.getAllContacts(userId), HttpStatus.OK);
     }
 
     @PostMapping("/contact")
-    public ResponseEntity<Contact> addContact(@RequestBody Contact contact) {
-        try {
-            Contact contact1 = contactRepository.save(new Contact(contact.getId(), contact.getEmail(), contact.getFirstName(), contact.getUser()));
-            return new ResponseEntity<>(contact1, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<Contact> createContact(@RequestBody Contact contact) {
+        return new ResponseEntity<>(contactService.createContact(contact), HttpStatus.CREATED);
     }
 
     @PutMapping("/contact/put/{contactId}")
-    public ResponseEntity<Contact> updateUser(@PathVariable("contactId") Integer contactId, @RequestBody Contact contact) {
-        Optional<Contact> contactData = contactRepository.findById(contactId);
-        if (contactData.isPresent()) {
-            Contact contact1 = contactData.get();
-            contact1.setFirstName(contact.getFirstName());
-            contact1.setEmail(contact.getEmail());
-            return new ResponseEntity<>(contactRepository.save(contact1), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Contact> updateContact(@PathVariable("contactId") Integer contactId, @RequestBody Contact contact) {
+        return new ResponseEntity<>(contactService.updateContact(contact, contactId), HttpStatus.OK);
     }
 
     @DeleteMapping("/contact/delete/{contactId}")
     public ResponseEntity<HttpStatus> deleteContact(@PathVariable("contactId") Integer contactId) {
-        try {
-            contactRepository.deleteById(contactId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        contactService.deleteContact(contactId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

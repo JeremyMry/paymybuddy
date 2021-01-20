@@ -17,11 +17,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE,"/profile/delete/{id}").permitAll()
 
                 .antMatchers(HttpMethod.GET,"/contact/{id}").permitAll()
+                .antMatchers(HttpMethod.GET,"/contact/all/{id}").permitAll()
                 .antMatchers(HttpMethod.POST,"/contact").permitAll()
                 .antMatchers(HttpMethod.PUT, "/contact/put/{id}").permitAll()
                 .antMatchers(HttpMethod.DELETE,"/contact/delete/{id}").permitAll()
 
                 .antMatchers(HttpMethod.GET,"/transactions/made/{id}").permitAll()
+                .antMatchers(HttpMethod.GET,"/transactions/{id}").permitAll()
                 .antMatchers(HttpMethod.GET,"/transactions/received/{id}").permitAll()
                 .antMatchers(HttpMethod.POST,"/transactions").permitAll()
                 .anyRequest().authenticated();

@@ -1,12 +1,15 @@
 package com.paymybuddy.app.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 
 @Entity
 public class Transaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer transactionId;
 
@@ -17,17 +20,24 @@ public class Transaction {
     private int amount;
 
     @ManyToOne
-    @JoinColumn(name="creditor_id", referencedColumnName="userId")
+    @JoinColumn(name="creditor_id")
     private User creditor;
 
     @ManyToOne
-    @JoinColumn(name="debtor_id", referencedColumnName="userId")
+    @JoinColumn(name="debtor_id")
     private User debtor;
 
     public Transaction() {}
 
     public Transaction(Integer transactionId, User creditor, User debtor, String reference, int amount) {
         this.transactionId = transactionId;
+        this.creditor = creditor;
+        this.debtor = debtor;
+        this.reference = reference;
+        this.amount = amount;
+    }
+
+    public Transaction(User creditor, User debtor, String reference, int amount) {
         this.creditor = creditor;
         this.debtor = debtor;
         this.reference = reference;
