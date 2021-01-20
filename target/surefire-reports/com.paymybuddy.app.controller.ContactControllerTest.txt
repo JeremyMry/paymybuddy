@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.paymybuddy.app.controller.ContactControllerTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.18 s - in com.paymybuddy.app.controller.ContactControllerTest
