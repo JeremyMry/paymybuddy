@@ -27,4 +27,20 @@ public class UserService {
         user1.setWallet(user.getWallet());
         return userRepository.save(user1);
     }
+
+    public Integer getLoginInfo(String email, String password) {
+        try {
+            User user = userRepository.findByEmail(email);
+            if (user.getPassword().equals(password)) {
+                return user.getId();
+            } else {
+                return null;
+            }
+        } catch (NullPointerException e) {
+            return null;
+        }
+
+
+
+    }
 }

@@ -15,6 +15,17 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @GetMapping("/login")
+    public ResponseEntity<Optional> login(@RequestParam String email, String password) {
+        Integer userId = userService.getLoginInfo(email, password);
+
+        if(userId != null) {
+            return getProfile(userId);
+        } else {
+            return null;
+        }
+    }
+
     @GetMapping("/profile/{userId}")
     public ResponseEntity<Optional> getProfile(@PathVariable("userId") Integer userId) {
         return new ResponseEntity<>(userService.getProfile(userId), HttpStatus.OK);
