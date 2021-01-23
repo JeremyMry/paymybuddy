@@ -2,6 +2,7 @@ package com.paymybuddy.app.service;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -9,8 +10,18 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
+    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+        // authentication manager (see below)
+    }
+
+
+    @Override
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests()
+
+
+                .antMatchers(HttpMethod.GET,"/signin").permitAll()
+                .antMatchers(HttpMethod.POST,"/signin").permitAll()
 
                 .antMatchers(HttpMethod.GET,"/login").permitAll()
                 .antMatchers(HttpMethod.GET,"/profile/{id}").permitAll()
