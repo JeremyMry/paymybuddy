@@ -4,15 +4,15 @@
     <title>Sign-In</title>
 </head>
 <body>
-<form name='form' th:action="@{/login}" method="post">
+<form th:action="@{/login}" method="GET" enctype="utf8">
     <table>
         <tr>
             <td>Email:</td>
-            <td><input type='text' th:name="email"></td>
+            <td><input type="email" th:name="email"/></td>
         </tr>
         <tr>
             <td>Password:</td>
-            <td><input type='password' th:name="password"></td>
+            <td><input type="password" th:name="password"/></td>
         </tr>
         <tr>
             <td><input name="submit" type="submit" value="submit" /></td>

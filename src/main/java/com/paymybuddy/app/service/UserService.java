@@ -30,8 +30,8 @@ public class UserService {
 
     public Boolean getLoginInfo(String email, String password) {
         try {
-            User user = userRepository.findByEmail(email);
-            if (user.getPassword().equals(password)) {
+            User userLogged = userRepository.findByEmail(email);
+            if (userLogged.getPassword().equals(password)) {
                 return true;
             } else {
                 return false;
