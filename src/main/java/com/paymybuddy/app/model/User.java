@@ -45,6 +45,11 @@ public class User {
         this.wallet = wallet;
     }
 
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     public User(Integer userId) {
         this.userId = userId;
     }

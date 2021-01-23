@@ -15,6 +15,15 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    /**@GetMapping("/login")
+    public ResponseEntity<HttpStatus> signIn(@RequestBody User user) {
+        if (userService.getLoginInfo(user)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }**/
+
     @GetMapping("/profile/{userId}")
     public ResponseEntity<Optional> getProfile(@PathVariable("userId") Integer userId) {
         return new ResponseEntity<>(userService.getProfile(userId), HttpStatus.OK);
