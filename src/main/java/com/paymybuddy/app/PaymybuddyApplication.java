@@ -18,8 +18,7 @@ public class PaymybuddyApplication {
 	@Bean
 	public Logger logger() { return LogManager.getRootLogger(); }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
+	@Bean public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 }
