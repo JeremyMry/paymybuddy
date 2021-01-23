@@ -28,19 +28,16 @@ public class UserService {
         return userRepository.save(user1);
     }
 
-    public Integer getLoginInfo(String email, String password) {
+    public Boolean getLoginInfo(String email, String password) {
         try {
             User user = userRepository.findByEmail(email);
             if (user.getPassword().equals(password)) {
-                return user.getId();
+                return true;
             } else {
-                return null;
+                return false;
             }
         } catch (NullPointerException e) {
-            return null;
+            return false;
         }
-
-
-
     }
 }
