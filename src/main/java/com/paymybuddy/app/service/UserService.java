@@ -28,9 +28,12 @@ public class UserService implements UserDetailsService {
     public Optional<User> getProfile(Integer userId) { return userRepository.findById(userId); }
 
     @Transactional
-    public User createUser(User user) {
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public Boolean createUser(User user) {
+        if (userRepository.findByEmail(user.getEmail()) == null) {
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            userRepository.save(user);
+            return true;
+        } else return false;
     }
 
     public User updateUser(User user, Integer userId) {
@@ -43,20 +46,6 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user1);
     }
 
-    public Boolean getLoginInfo(User user) {
-        try {
-            User userLogged = userRepository.findByEmail(user.getEmail());
-            if (userLogged.getPassword().equals(user.getPassword())) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         final User user = userRepository.findByEmail(email);
         if (user == null) {

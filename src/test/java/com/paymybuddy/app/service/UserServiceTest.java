@@ -40,16 +40,19 @@ public class UserServiceTest {
 
     @Test
     public void createUserTest() {
-        User user = userService.createUser(new User("paul", "doe", "p.b@testmail.com", "eee", 450));
+        Assert.assertEquals(userService.createUser(new User("paul", "doe", "p.b@testmail.com", "eee", 450)), true);
+    }
 
-        Assert.assertEquals(user.getFirstName(), userService.getProfile(1).get().getFirstName());
+    @Test
+    public void createUserTestEmailAlreadyExist() {
+        userService.createUser(new User("paul", "doe", "p.b@testmail.com", "eee", 450));
+        Boolean user = userService.createUser(new User("paul", "doe", "p.b@testmail.com", "eee", 450));
+        Assert.assertEquals(user, false);
     }
 
     @Test
     public void updateUser() {
-        User user = userService.createUser(new User("paul", "doe", "p.b@testmail.com", "eee", 450));
-        userRepository.save(user);
-
+        Boolean user = userService.createUser(new User("paul", "doe", "p.b@testmail.com", "eee", 450));
         userService.updateUser(new User("John", "doe", "p.b@testmail.com", "eee", 450), 1);
 
         Assert.assertEquals(userService.getProfile(1).get().getFirstName(), "John");
