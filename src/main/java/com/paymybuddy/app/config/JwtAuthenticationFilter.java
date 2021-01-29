@@ -2,6 +2,7 @@ package com.paymybuddy.app.config;
 
 import com.paymybuddy.app.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private TokenManager tokenManager;
 
+    @Autowired
+    private Logger logger;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String tokenHeader = request.getHeader("Authorization");
@@ -36,12 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 email = tokenManager.getEmailFromToken(token);
             } catch (IllegalArgumentException e) {
-                System.out.println("Unable to get JWT Token");
+                logger.error("Unable to get JWT Token");
             } catch (ExpiredJwtException e) {
-                System.out.println("JWT Token has expired");
+                logger.error("JWT Token has expired");
             }
-        } else {
-            System.out.println("Bearer String not found in token");
         }
 
         if (null != email && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -1,6 +1,7 @@
 package com.paymybuddy.app.controller;
 
 import com.paymybuddy.app.config.TokenManager;
+import com.paymybuddy.app.model.Login;
 import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.service.UserService;
 import org.apache.logging.log4j.Logger;
@@ -19,25 +20,17 @@ import java.util.Optional;
 @RestController()
 public class UserController {
 
-    private final Logger logger;
-
-    public UserController(Logger logger) {
-        this.logger = logger;
-    }
+    @Autowired
+    private Logger logger;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private TokenManager tokenManager;
-
-    @GetMapping("/profile/{userId}")
-    public ResponseEntity<Optional> getProfile(@PathVariable("userId") Integer userId) {
-        return new ResponseEntity<>(userService.getProfile(userId), HttpStatus.OK);
-    }
 
     @PostMapping("/profile")
     public ResponseEntity<HttpStatus> createUser(@RequestBody User user) {
@@ -50,9 +43,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> createToken(@RequestBody User user) throws Exception {
+    public ResponseEntity<java.lang.String> createToken(@RequestBody Login login) throws Exception {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword()));
         } catch (DisabledException e) {
             logger.error("USER_DISABLED");
             throw new Exception("USER_DISABLED", e);
@@ -60,14 +53,69 @@ public class UserController {
             logger.error("INVALID_CREDENTIALS");
             throw new Exception("INVALID_CREDENTIALS", e);
         }
-        final UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
+        final UserDetails userDetails = userService.loadUserByUsername(login.getEmail());
         logger.info("TOKEN GENERATED");
         return new ResponseEntity<>(tokenManager.generateJwtToken(userDetails), HttpStatus.ACCEPTED);
     }
 
-    @PutMapping("/profile/put/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable("userId") Integer userId, @RequestBody User user) {
-        logger.info("USER UPDATED");
-        return new ResponseEntity<>(userService.updateUser(user, userId), HttpStatus.OK);
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<Optional> getProfile(@PathVariable("userId") Integer userId) {
+        return new ResponseEntity<>(userService.getProfile(userId), HttpStatus.OK);
     }
+
+    @PutMapping("/profile/put/firstName/{userId}")
+    public ResponseEntity<HttpStatus> updateUserFirstName(@PathVariable("userId") Integer userId, @RequestBody java.lang.String firstName) {
+        if(userService.updateUserFirstName(firstName, userId)) {
+            logger.info("USER FIRSTNAME UPDATED");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.error("USER FIRSTNAME CANNOT BE UPDATED");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/profile/put/lastName/{userId}")
+    public ResponseEntity<HttpStatus> updateUserLastName(@PathVariable("userId") Integer userId, @RequestBody java.lang.String lastName) {
+        if(userService.updateUserLastName(lastName, userId)) {
+            logger.info("USER LASTNAME UPDATED");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.error("USER LASTNAME CANNOT BE UPDATED");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/profile/put/email/{userId}")
+    public ResponseEntity<HttpStatus> updateEmail(@PathVariable("userId") Integer userId, @RequestBody java.lang.String email) {
+        if(userService.updateEmail(email, userId)) {
+            logger.info("USER EMAIL UPDATED");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.error("USER EMAIL CANNOT BE UPDATED");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/profile/put/password/{userId}")
+    public ResponseEntity<HttpStatus> updatePassword(@PathVariable("userId") Integer userId, @RequestBody java.lang.String password) {
+        if(userService.updatePassword(password, userId)) {
+            logger.info("USER PASSWORD UPDATED");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.error("USER PASSWORD CANNOT BE UPDATED");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/profile/put/wallet/{userId}")
+    public ResponseEntity<HttpStatus> updateWallet(@PathVariable("userId") Integer userId, @RequestBody Integer wallet) {
+        if(userService.updateWallet(wallet, userId)) {
+            logger.info("USER WALLET UPDATED");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.error("USER WALLET CANNOT BE UPDATED");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

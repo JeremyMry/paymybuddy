@@ -23,7 +23,7 @@ public class TransactionServiceTest {
     @Autowired
     TransactionService transactionService;
 
-    @Test
+    /**@Test
     public void getTransactionTest() {
         User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
         User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
@@ -111,8 +111,40 @@ public class TransactionServiceTest {
         userRepository.save(user);
         userRepository.save(user2);
 
-        Transaction transaction = transactionService.createTransaction(new Transaction(user2, user, "100", 100));
+        Boolean bool = transactionService.createTransaction(new Transaction(user2, user, "100", 100));
 
-        Assert.assertEquals(transaction.getId(), transactionService.getTransaction(1).get().getId());
+        Assert.assertEquals(bool, true);
     }
+
+    @Test
+    public void createTransactionWithAmountInferiorAtZeroTest() {
+        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
+        User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
+        userRepository.save(user);
+        userRepository.save(user2);
+
+        Boolean bool = transactionService.createTransaction(new Transaction(user2, user, "100", 0));
+
+        Assert.assertEquals(bool, false);
+    }
+
+    @Test
+    public void createTransactionWithWrongDebtorTest() {
+        User user2 = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
+        userRepository.save(user2);
+
+        Boolean bool = transactionService.createTransaction(new Transaction(user2, new User("paul", "doe", "p.b@testmail.com", "eee", 450), "100", 10));
+
+        Assert.assertEquals(bool, false);
+    }
+
+    @Test
+    public void createTransactionWithWrongCreditorTest() {
+        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
+        userRepository.save(user);
+
+        Boolean bool = transactionService.createTransaction(new Transaction(new User("paul", "doe", "p.b@testmail.com", "eee", 450), user, "100", 10));
+
+        Assert.assertEquals(bool, false);
+    }**/
 }

@@ -16,16 +16,18 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService {
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
-    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
+    @Autowired
+    private ContactService contactService;
 
     public Optional<User> getProfile(Integer userId) { return userRepository.findById(userId); }
+
+    public User findByEmail(java.lang.String email) { return userRepository.findByEmail(email); }
 
     @Transactional
     public Boolean createUser(User user) {
@@ -36,17 +38,64 @@ public class UserService implements UserDetailsService {
         } else return false;
     }
 
-    public User updateUser(User user, Integer userId) {
-        User user1 = userRepository.findById(userId).get();
-        user1.setFirstName(user.getFirstName());
-        user1.setLastName(user.getLastName());
-        user1.setEmail(user.getEmail());
-        user1.setPassword(user.getPassword());
-        user1.setWallet(user.getWallet());
-        return userRepository.save(user1);
+    public Boolean updateUserFirstName(java.lang.String firstName, Integer userId) {
+        if(userRepository.findById(userId).isEmpty()) {
+            return false;
+        } else {
+            User user1 = userRepository.findById(userId).get();
+            user1.setFirstName(firstName);
+            userRepository.save(user1);
+            return true;
+        }
     }
 
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public Boolean updateUserLastName(java.lang.String lastName, Integer userId) {
+        if(userRepository.findById(userId).isEmpty()) {
+            return false;
+        } else {
+            User user1 = userRepository.findById(userId).get();
+            user1.setLastName(lastName);
+            userRepository.save(user1);
+            return true;
+        }
+    }
+
+    public Boolean updateWallet(Integer wallet, Integer userId) {
+        if(userRepository.findById(userId).isEmpty()) {
+            return false;
+        } else {
+            User user1 = userRepository.findById(userId).get();
+            user1.setWallet(wallet);
+            userRepository.save(user1);
+            return true;
+        }
+    }
+
+    public Boolean updatePassword(java.lang.String password, Integer userId) {
+        if(userRepository.findById(userId).isEmpty()) {
+            return false;
+        } else {
+            User user = userRepository.findById(userId).get();
+            user.setPassword(bCryptPasswordEncoder.encode(password));
+            userRepository.save(user);
+            return true;
+        }
+    }
+
+    public Boolean updateEmail(java.lang.String email, Integer userId) {
+        if(userRepository.findById(userId).isEmpty()) {
+            return false;
+        } else {
+            User user1 = userRepository.findById(userId).get();
+            //also change the contact email link to this userid
+            contactService.updateEmail(email, user1.getEmail());
+            user1.setEmail(email);
+            userRepository.save(user1);
+            return true;
+        }
+    }
+
+    public UserDetails loadUserByUsername(java.lang.String email) throws UsernameNotFoundException {
         final User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException(email);
