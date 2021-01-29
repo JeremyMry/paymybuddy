@@ -11,7 +11,7 @@ public class Transaction {
     private Integer transactionId;
 
     @Column(nullable = false)
-    private java.lang.String reference;
+    private String reference;
 
     @Column
     private int amount;

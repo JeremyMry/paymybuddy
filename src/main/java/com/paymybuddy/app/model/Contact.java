@@ -19,34 +19,21 @@ public class Contact {
     @Column
     private Integer creator;
 
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    private User user;
-
 
     public Contact() {}
 
-    public Contact(Integer contactId, java.lang.String email, java.lang.String firstName, Integer creator) {
-        this.contactId = contactId;
+    public Contact(String email, String firstName, Integer creator) {
         this.email = email;
         this.firstName = firstName;
         this.creator = creator;
     }
 
-    public Contact(java.lang.String email, java.lang.String firstName, User user) {
-        this.email = email;
-        this.firstName = firstName;
-        this.user = user;
-    }
-
     public Integer getId() { return contactId; }
     public void setId(Integer contactId) { this.contactId = contactId; }
-    public java.lang.String getEmail() { return email; }
-    public void setEmail(java.lang.String email) { this.email = email; }
-    public java.lang.String getFirstName() { return firstName; }
-    public void setFirstName(java.lang.String firstName) { this.firstName = firstName; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
     public Integer getCreator() { return creator; }
     public void setCreator(Integer creator) { this.creator = creator; }
 }

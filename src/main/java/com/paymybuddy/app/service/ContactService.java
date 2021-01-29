@@ -36,7 +36,7 @@ public class ContactService {
             User user = userService.findByEmail(contact.getEmail());
             User user1 = userService.getProfile(contact.getCreator()).get();
             if(user != null || user1.getId() != null) {
-                contact.setUser(user);
+                contact.setCreator(user1.getId());
                 contactRepository.save(contact);
                 return true;
             } else {
