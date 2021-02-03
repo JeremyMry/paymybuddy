@@ -1,17 +1,19 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.model.Contact;
-import com.paymybuddy.app.model.User;
+import com.paymybuddy.app.entity.Contact;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface ContactRepository extends CrudRepository<Contact, Integer> {
+@Repository
+public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     @Query("FROM Contact c where c.creator = :userId")
-    List<Contact> findAllByCurrentUser(@Param("userId") Integer userId);
+    List<Contact> findAllByCurrentUser(@Param("userId") Long userId);
 
-    Contact findByEmail(String email);
+    Optional<Contact> findByEmail(String email);
 }

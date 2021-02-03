@@ -1,18 +1,19 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.model.Contact;
-import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.entity.Transaction;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface TransactionRepository extends CrudRepository<Transaction, Integer> {
+@Repository
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    @Query("FROM Transaction t where t.debtor.id = :userId")
-    List<Transaction> findAllByCurrentDebtor(@Param("userId") Integer userId);
+    @Query("FROM Transaction t where t.debtor = :debtorId")
+    List<Transaction> findAllByCurrentDebtor(@Param("debtorId") Long debtorId);
 
-    @Query("FROM Transaction t where t.creditor.id = :userId")
-    List<Transaction> findAllByCurrentCreditor(@Param("userId") Integer userId);
+    @Query("FROM Transaction t where t.creditor = :creditorId")
+    List<Transaction> findAllByCurrentCreditor(@Param("creditorId") Long creditorId);
 }

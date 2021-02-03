@@ -1,7 +1,9 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.model.Transaction;
-import com.paymybuddy.app.service.TransactionService;
+import com.paymybuddy.app.model.TransactionProceed;
+import com.paymybuddy.app.security.CurrentUser;
+import com.paymybuddy.app.security.UserPrincipal;
+import com.paymybuddy.app.service.impl.TransactionServiceImpl;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,38 +11,32 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@RestController()
+@RestController
+@RequestMapping("/api/transaction")
 public class TransactionController {
 
     @Autowired
-    private TransactionService transactionService;
+    private TransactionServiceImpl transactionService;
 
     @Autowired
     private Logger logger;
 
-    @GetMapping("/transactions/{transactionId}")
-    public ResponseEntity<Optional> getTransaction(@PathVariable("transactionId") Integer transactionId) {
+    @GetMapping("/made")
+    public ResponseEntity<List> getAllTransactionsMade(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
-        return new ResponseEntity<>(transactionService.getTransaction(transactionId), HttpStatus.OK);
+        return new ResponseEntity<>(transactionService.getAllTransactionsMade(currentUser), HttpStatus.OK);
     }
 
-    @GetMapping("/transactions/made/{userId}")
-    public ResponseEntity<List> getAllTransactionsMade(@PathVariable("userId") Integer userId) {
+    @GetMapping("/received")
+    public ResponseEntity<List> getAllTransactionsReceived(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
-        return new ResponseEntity<>(transactionService.getAllTransactionsMade(userId), HttpStatus.OK);
+        return new ResponseEntity<>(transactionService.getAllTransactionsReceived(currentUser), HttpStatus.OK);
     }
 
-    @GetMapping("/transactions/received/{userId}")
-    public ResponseEntity<List> getAllTransactionsReceived(@PathVariable("userId") Integer userId) {
-        logger.info("GET REQUEST | SUCCESS");
-        return new ResponseEntity<>(transactionService.getAllTransactionsReceived(userId), HttpStatus.OK);
-    }
-
-    @PostMapping("/transactions")
-    public ResponseEntity<HttpStatus> createTransaction(@RequestBody Transaction transaction) {
-        if(transactionService.createTransaction(transaction)) {
+    @PostMapping("/create")
+    public ResponseEntity<HttpStatus> createTransaction(@CurrentUser UserPrincipal currentUser, @RequestBody TransactionProceed transactionProceed) {
+        if(transactionService.createTransaction(currentUser, transactionProceed)) {
             logger.info("TRANSACTION CREATED");
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {

@@ -1,10 +1,13 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.model.Transaction;
-import com.paymybuddy.app.model.User;
+import com.paymybuddy.app.entity.Transaction;
+import com.paymybuddy.app.entity.Users;
+import com.paymybuddy.app.model.TransactionProceed;
 import com.paymybuddy.app.repository.TransactionRepository;
 import com.paymybuddy.app.repository.UserRepository;
-import org.junit.Assert;
+import com.paymybuddy.app.security.UserPrincipal;
+import com.paymybuddy.app.service.impl.TransactionServiceImpl;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,130 +24,105 @@ public class TransactionServiceTest {
     UserRepository userRepository;
 
     @Autowired
-    TransactionService transactionService;
+    TransactionServiceImpl transactionService;
 
-    /**@Test
-    public void getTransactionTest() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
-        Transaction transaction = new Transaction(user, user2, "100", 100);
-
-        userRepository.save(user);
-        userRepository.save(user2);
-        transactionRepository.save(transaction);
-
-        Assert.assertTrue(transactionService.getTransaction(1).isPresent());
-    }
-
-    @Test
-    public void getTransaction2Test() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
-        Transaction transaction = new Transaction(user, user2, "100", 100);
-        Transaction transaction2 = new Transaction(user, user2, "100", 100);
-
-        userRepository.save(user);
-        userRepository.save(user2);
-        transactionRepository.save(transaction);
-        transactionRepository.save(transaction2);
-
-        Assert.assertTrue(transactionService.getTransaction(2).isPresent());
-    }
-
-    @Test
-    public void getTransactionThatDoesntExistTest() {
-        Assert.assertFalse(transactionService.getTransaction(1).isPresent());
-    }
 
     @Test
     public void getAllTransactionsMade() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
-        Transaction transaction = new Transaction(user2, user, "100", 100);
-        Transaction transaction2 = new Transaction(user2, user, "100", 100);
+        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", 100);
+        TransactionProceed transactionProceed2 = new TransactionProceed(2L, "new debt", 20);
+        TransactionProceed transactionProceed3 = new TransactionProceed(1L, "new debt", 20);
 
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
+        Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
         userRepository.save(user);
         userRepository.save(user2);
+
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+        UserPrincipal userPrincipal1 = UserPrincipal.create(user2);
+
+        Transaction transaction = new Transaction(transactionProceed.getReference(),  transactionProceed.getAmount(), transactionProceed.getCreditor(), userPrincipal.getId());
+        Transaction transaction2 = new Transaction(transactionProceed2.getReference(),  transactionProceed2.getAmount(), transactionProceed2.getCreditor(), userPrincipal.getId());
+        Transaction transaction3 = new Transaction(transactionProceed3.getReference(),  transactionProceed3.getAmount(), transactionProceed3.getCreditor(), userPrincipal1.getId());
         transactionRepository.save(transaction);
         transactionRepository.save(transaction2);
+        transactionRepository.save(transaction3);
 
-        Assert.assertEquals(transactionService.getAllTransactionsMade(1).size(), 2);
+        Assertions.assertEquals(transactionService.getAllTransactionsMade(userPrincipal).size(), 2);
     }
 
     @Test
     public void getAllTransactionsMadeWhenThereIsNone() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
         userRepository.save(user);
 
-        Assert.assertEquals(transactionService.getAllTransactionsMade(1).size(), 0);
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+
+        Assertions.assertEquals(transactionService.getAllTransactionsMade(userPrincipal).size(), 0);
     }
 
-    @Test
+
+     @Test
     public void getAllTransactionsReceived() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
-        Transaction transaction = new Transaction(user2, user, "100", 100);
-        Transaction transaction2 = new Transaction(user2, user, "100", 100);
+         TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", 100);
+         TransactionProceed transactionProceed2 = new TransactionProceed(2L, "new debt", 20);
+         TransactionProceed transactionProceed3 = new TransactionProceed(1L, "new debt", 20);
 
-        userRepository.save(user);
-        userRepository.save(user2);
-        transactionRepository.save(transaction);
-        transactionRepository.save(transaction2);
+         Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
+         Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
+         userRepository.save(user);
+         userRepository.save(user2);
 
-        Assert.assertEquals(transactionService.getAllTransactionsReceived(2).size(), 2);
+         UserPrincipal userPrincipal = UserPrincipal.create(user);
+         UserPrincipal userPrincipal1 = UserPrincipal.create(user2);
+
+         Transaction transaction = new Transaction(transactionProceed.getReference(),  transactionProceed.getAmount(), transactionProceed.getCreditor(), userPrincipal.getId());
+         Transaction transaction2 = new Transaction(transactionProceed2.getReference(),  transactionProceed2.getAmount(), transactionProceed2.getCreditor(), userPrincipal.getId());
+         Transaction transaction3 = new Transaction(transactionProceed3.getReference(),  transactionProceed3.getAmount(), transactionProceed3.getCreditor(), userPrincipal1.getId());
+         transactionRepository.save(transaction);
+         transactionRepository.save(transaction2);
+         transactionRepository.save(transaction3);
+
+         Assertions.assertEquals(transactionService.getAllTransactionsReceived(userPrincipal).size(), 1);
     }
 
     @Test
     public void getAllTransactionsReceivedWhenThereIsNone() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
         userRepository.save(user);
 
-        Assert.assertEquals(transactionService.getAllTransactionsMade(1).size(), 0);
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+
+        Assertions.assertEquals(transactionService.getAllTransactionsReceived(userPrincipal).size(), 0);
     }
+
 
     @Test
     public void createTransactionTest() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
+        Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
         userRepository.save(user);
         userRepository.save(user2);
 
-        Boolean bool = transactionService.createTransaction(new Transaction(user2, user, "100", 100));
+        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", 100);
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
 
-        Assert.assertEquals(bool, true);
+        Assertions.assertTrue(transactionService.createTransaction(userPrincipal, transactionProceed));
+        Assertions.assertTrue(transactionService.getTransaction(1L).isPresent());
     }
+
 
     @Test
     public void createTransactionWithAmountInferiorAtZeroTest() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        User user2 = new User( "paul", "doe", "p.b@testmail.com", "eee", 450);
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
+        Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
         userRepository.save(user);
         userRepository.save(user2);
 
-        Boolean bool = transactionService.createTransaction(new Transaction(user2, user, "100", 0));
+        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", -100);
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
 
-        Assert.assertEquals(bool, false);
+        Assertions.assertFalse(transactionService.createTransaction(userPrincipal, transactionProceed));
+        Assertions.assertFalse(transactionService.getTransaction(1L).isPresent());
     }
-
-    @Test
-    public void createTransactionWithWrongDebtorTest() {
-        User user2 = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        userRepository.save(user2);
-
-        Boolean bool = transactionService.createTransaction(new Transaction(user2, new User("paul", "doe", "p.b@testmail.com", "eee", 450), "100", 10));
-
-        Assert.assertEquals(bool, false);
-    }
-
-    @Test
-    public void createTransactionWithWrongCreditorTest() {
-        User user = new User("paul", "doe", "p.b@testmail.com", "eee", 450);
-        userRepository.save(user);
-
-        Boolean bool = transactionService.createTransaction(new Transaction(new User("paul", "doe", "p.b@testmail.com", "eee", 450), user, "100", 10));
-
-        Assert.assertEquals(bool, false);
-    }**/
 }

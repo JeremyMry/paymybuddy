@@ -7,12 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @SpringBootApplication
 public class PaymybuddyApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(PaymybuddyApplication.class, args);
-	}
 
 	@Bean
 	public Logger logger() { return LogManager.getRootLogger(); }
@@ -21,6 +20,9 @@ public class PaymybuddyApplication {
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(PaymybuddyApplication.class, args);
+	}
+
 }
-
-
