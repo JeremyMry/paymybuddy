@@ -50,7 +50,8 @@ public class TransactionServiceImpl implements ITransactionService {
         BigDecimal roundFee = (transactionProceed.getAmount().subtract(transactionProceed.getAmount().multiply(BigDecimal.valueOf(0.995))));
         if(bankTransferApiServiceMock.transferMoneyToTheBankAccountMock(roundFee)){
             BigDecimal amount = transactionProceed.getAmount().add(roundFee);
-            if (transactionProceed.getAmount().compareTo(BigDecimal.ZERO) <= 0.00) {
+            //check if the transaction amount is inferior or equal to amount of money present on the debtor wallet
+            if (transactionProceed.getAmount().compareTo(user.getWallet()) >= 0.00) {
                 return false;
             } else {
                 userService.updateCreditorWallet(transactionProceed.getAmount(), transactionProceed.getCreditor());

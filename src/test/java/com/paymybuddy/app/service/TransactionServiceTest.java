@@ -120,6 +120,31 @@ public class TransactionServiceTest {
 
     @Test
     public void transactionComputationTest() {
+        BigDecimal wallet = new BigDecimal("150.00");
+        BigDecimal amount = new BigDecimal("20.00");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        Users user2 = new Users("john", "doe", "johnny", "jdoe@testmail.com", "450", BigDecimal.ZERO);
+        userRepository.save(user);
+        userRepository.save(user2);
+        TransactionProceed transactionProceed = new TransactionProceed(2L, "reference", amount);
 
+        Boolean bool = transactionService.transactionComputation(UserPrincipal.create(user), transactionProceed);
+
+        Assertions.assertTrue(bool);
+    }
+
+    @Test
+    public void transactionComputationAmountSuperiorToDebtorWalletTest() {
+        BigDecimal wallet = new BigDecimal("50.00");
+        BigDecimal amount = new BigDecimal("60.00");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        Users user2 = new Users("john", "doe", "johnny", "jdoe@testmail.com", "450", BigDecimal.ZERO);
+        userRepository.save(user);
+        userRepository.save(user2);
+        TransactionProceed transactionProceed = new TransactionProceed(2L, "reference", amount);
+
+        Boolean bool = transactionService.transactionComputation(UserPrincipal.create(user), transactionProceed);
+
+        Assertions.assertFalse(bool);
     }
 }

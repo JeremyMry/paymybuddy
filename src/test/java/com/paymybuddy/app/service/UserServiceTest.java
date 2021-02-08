@@ -168,6 +168,8 @@ public class UserServiceTest {
 
         Boolean bool = userService.addMoneyToTheWallet(UserPrincipal.create(user), sum);
 
+
+        assertEquals(userService.getUser(1L).get().getWallet(), sum);
         assertTrue(bool);
     }
 
@@ -192,6 +194,7 @@ public class UserServiceTest {
 
         Boolean bool = userService.removeMoneyFromTheWallet(UserPrincipal.create(user), sum);
 
+        assertEquals(userService.getUser(1L).get().getWallet(), wallet.subtract(sum));
         assertTrue(bool);
     }
 
@@ -221,15 +224,45 @@ public class UserServiceTest {
 
    @Test
     public void updateCreditorWalletTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        BigDecimal amount = new BigDecimal("150.00");
+        BigDecimal wallet = new BigDecimal("450.00");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
         userRepository.save(user);
 
-        userService.updateCreditorWallet(BigDecimal.ZERO, 1L);
+        userService.updateCreditorWallet(amount, user.getId());
 
+        assertEquals(userService.getUser(1L).get().getWallet(), wallet.add(amount));
+    }
+
+    @Test
+    public void updateCreditorWalletNoCreditorTest() {
+        BigDecimal amount = new BigDecimal("150.00");
+        BigDecimal wallet = new BigDecimal("450.00");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        userRepository.save(user);
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateCreditorWallet(amount, 2L));
     }
 
     @Test
     public void updateDebtorWalletTest() {
+        BigDecimal amount = new BigDecimal("150.00");
+        BigDecimal wallet = new BigDecimal("450.00");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        userRepository.save(user);
 
+        userService.updateDebtorWallet(amount, user.getId());
+
+        assertEquals(userService.getUser(1L).get().getWallet(), wallet.subtract(amount));
+    }
+
+    @Test
+    public void updateCDebtorWalletNoDebtorTest() {
+        BigDecimal amount = new BigDecimal("150.00");
+        BigDecimal wallet = new BigDecimal("450.00");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        userRepository.save(user);
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateDebtorWallet(amount, 2L));
     }
 }
