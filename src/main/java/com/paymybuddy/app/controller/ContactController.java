@@ -1,7 +1,7 @@
 package com.paymybuddy.app.controller;
 
 import com.paymybuddy.app.model.ContactDelete;
-import com.paymybuddy.app.model.ContactProceed;
+import com.paymybuddy.app.model.ContactSummary;
 import com.paymybuddy.app.model.ContactUpdate;
 import com.paymybuddy.app.security.CurrentUser;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -33,8 +33,8 @@ public class ContactController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<HttpStatus> createContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactProceed contactProceed) {
-        if(contactServiceImpl.createContact(currentUser, contactProceed)) {
+    public ResponseEntity<HttpStatus> createContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactSummary contactSummary) {
+        if(contactServiceImpl.createContact(currentUser, contactSummary)) {
             logger.info("CONTACT CREATED");
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else  {

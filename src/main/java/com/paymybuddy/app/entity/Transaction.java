@@ -1,6 +1,7 @@
 package com.paymybuddy.app.entity;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 public class Transaction {
@@ -14,7 +15,7 @@ public class Transaction {
     private String reference;
 
     @Column(nullable = false)
-    private int amount;
+    private BigDecimal amount;
 
     @Column(nullable = false)
     private Long creditor;
@@ -24,7 +25,8 @@ public class Transaction {
 
     public Transaction() {}
 
-    public Transaction(String reference, int amount, Long creditor, Long debtor) {
+
+    public Transaction(String reference, BigDecimal amount, Long creditor, Long debtor) {
         this.reference = reference;
         this.amount = amount;
         this.creditor = creditor;
@@ -45,10 +47,10 @@ public class Transaction {
         this.reference = reference;
     }
 
-    public int getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
-    public void setAmount(int amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

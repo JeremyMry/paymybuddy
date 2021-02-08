@@ -5,6 +5,8 @@ import com.paymybuddy.app.entity.Users;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -26,11 +28,11 @@ public class UserPrincipal implements UserDetails {
     private String password;
 
     @JsonIgnore
-    private Integer wallet;
+    private BigDecimal wallet;
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String firstName, String lastName, String username, String email, String password, Integer wallet, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String firstName, String lastName, String username, String email, String password, BigDecimal wallet, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.firstName =firstName;
         this.lastName = lastName;
@@ -69,7 +71,7 @@ public class UserPrincipal implements UserDetails {
         return email;
     }
 
-    public Integer getWallet() { return wallet; }
+    public BigDecimal getWallet() { return wallet; }
 
     @Override
     public String getUsername() {

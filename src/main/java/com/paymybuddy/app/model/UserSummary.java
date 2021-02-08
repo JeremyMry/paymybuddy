@@ -1,14 +1,16 @@
 package com.paymybuddy.app.model;
 
+import java.math.BigDecimal;
+
 public class UserSummary {
     private String username;
     private String firstName;
     private String lastName;
     private String email;
-    private Integer wallet;
+    private BigDecimal wallet;
 
 
-    public UserSummary(String username, String firstName, String lastName, String email, Integer wallet) {
+    public UserSummary(String username, String firstName, String lastName, String email, BigDecimal wallet) {
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -48,11 +50,11 @@ public class UserSummary {
         this.email = email;
     }
 
-    public Integer getWallet() {
+    public BigDecimal getWallet() {
         return wallet;
     }
 
-    public void setWallet(Integer wallet) {
+    public void setWallet(BigDecimal wallet) {
         this.wallet = wallet;
     }
 }

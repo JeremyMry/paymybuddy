@@ -1,9 +1,10 @@
 package com.paymybuddy.app.entity;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,8 +44,9 @@ public class Users {
     private String password;
 
     @NotBlank
-    @Column(columnDefinition = "integer default 0")
-    private Integer wallet;
+    @NotNull
+    @Digits(integer=5, fraction=2)
+    private BigDecimal wallet;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -53,10 +55,9 @@ public class Users {
     private Set<Role> roles = new HashSet<>();
 
     public Users() {
-
     }
 
-    public Users(String firstName, String lastName, String username, String email, String password, Integer wallet) {
+    public Users(String firstName, String lastName, String username, String email, String password, BigDecimal wallet) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -65,22 +66,12 @@ public class Users {
         this.wallet = wallet;
     }
 
-    public Users(String firstName, String lastName, String username, String email, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
-
     public Long getId() {
         return id;
     }
     public void setId(Long id) {
         this.id = id;
     }
-
-
 
     public String getFirstName() {
         return firstName;
@@ -122,11 +113,11 @@ public class Users {
         this.lastName = lastName;
     }
 
-    public Integer getWallet() {
+    public BigDecimal getWallet() {
         return wallet;
     }
 
-    public void setWallet(Integer wallet) {
+    public void setWallet(BigDecimal wallet) {
         this.wallet = wallet;
     }
 
@@ -136,6 +127,4 @@ public class Users {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
-
-
 }

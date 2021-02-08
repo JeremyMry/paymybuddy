@@ -4,7 +4,6 @@ import com.paymybuddy.app.exception.AppException;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.RoleName;
 import com.paymybuddy.app.entity.Users;
-import com.paymybuddy.app.model.ApiResponse;
 import com.paymybuddy.app.model.JwtAuthenticationResponse;
 import com.paymybuddy.app.model.LoginRequest;
 import com.paymybuddy.app.model.SignUpRequest;
@@ -12,6 +11,7 @@ import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.JwtTokenProvider;
 import com.paymybuddy.app.service.IAuthService;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,8 +20,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.Collections;
 
+@Transactional
 @Service
 public class AuthServiceImpl implements IAuthService {
 
@@ -40,6 +43,10 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     JwtTokenProvider tokenProvider;
 
+    @Autowired
+    Logger logger;
+
+
     @Override
     public JwtAuthenticationResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
@@ -49,19 +56,23 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public ApiResponse registerUser(SignUpRequest signUpRequest) {
+    public Boolean registerUser(SignUpRequest signUpRequest) {
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new ApiResponse(false, "Username is already taken!");
+            logger.error("Username is already taken!");
+            return false;
         } else if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new ApiResponse(false, "Email Address already in use!");
+            logger.error("Email Address already in use!");
+            return false;
         } else {
-            Users user = new Users(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(), signUpRequest.getEmail(), signUpRequest.getPassword());
+            BigDecimal wallet = new BigDecimal("0.00");
+            Users user = new Users(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(), signUpRequest.getEmail(), signUpRequest.getPassword(), wallet);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
                                           .orElseThrow(() -> new AppException("User Role not set."));
             user.setRoles(Collections.singleton(userRole));
+            logger.info("User registered successfully");
             userRepository.save(user);
-            return new ApiResponse(true, "User registered successfully");
+            return true;
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.paymybuddy.app;
 
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
@@ -11,6 +12,7 @@ import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
 @SpringBootApplication
+@EnableEncryptableProperties
 public class PaymybuddyApplication {
 
 	@Bean

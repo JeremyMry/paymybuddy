@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest
 public class TransactionServiceTest {
@@ -29,12 +32,15 @@ public class TransactionServiceTest {
 
     @Test
     public void getAllTransactionsMade() {
-        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", 100);
-        TransactionProceed transactionProceed2 = new TransactionProceed(2L, "new debt", 20);
-        TransactionProceed transactionProceed3 = new TransactionProceed(1L, "new debt", 20);
+        BigDecimal amount = new BigDecimal("100.00");
+        BigDecimal amount2 = new BigDecimal("20.00");
+        BigDecimal amount3 = new BigDecimal("20.00");
+        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", amount);
+        TransactionProceed transactionProceed2 = new TransactionProceed(2L, "new debt", amount2);
+        TransactionProceed transactionProceed3 = new TransactionProceed(1L, "new debt", amount3);
 
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
-        Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450", BigDecimal.ZERO);
         userRepository.save(user);
         userRepository.save(user2);
 
@@ -53,7 +59,7 @@ public class TransactionServiceTest {
 
     @Test
     public void getAllTransactionsMadeWhenThereIsNone() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
         userRepository.save(user);
 
         UserPrincipal userPrincipal = UserPrincipal.create(user);
@@ -64,12 +70,15 @@ public class TransactionServiceTest {
 
      @Test
     public void getAllTransactionsReceived() {
-         TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", 100);
-         TransactionProceed transactionProceed2 = new TransactionProceed(2L, "new debt", 20);
-         TransactionProceed transactionProceed3 = new TransactionProceed(1L, "new debt", 20);
+         BigDecimal amount = new BigDecimal("100.00");
+         BigDecimal amount2 = new BigDecimal("20.00");
+         BigDecimal amount3 = new BigDecimal("20.00");
+         TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", amount);
+         TransactionProceed transactionProceed2 = new TransactionProceed(2L, "new debt", amount2);
+         TransactionProceed transactionProceed3 = new TransactionProceed(1L, "new debt", amount3);
 
-         Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
-         Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
+         Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+         Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450", BigDecimal.ZERO);
          userRepository.save(user);
          userRepository.save(user2);
 
@@ -88,7 +97,7 @@ public class TransactionServiceTest {
 
     @Test
     public void getAllTransactionsReceivedWhenThereIsNone() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
+        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
         userRepository.save(user);
 
         UserPrincipal userPrincipal = UserPrincipal.create(user);
@@ -99,30 +108,18 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
-        Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
-        userRepository.save(user);
-        userRepository.save(user2);
+        BigDecimal amount = new BigDecimal("10.00");
+        Transaction transaction = new Transaction("eeee", amount, 1L, 2L);
 
-        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", 100);
-        UserPrincipal userPrincipal = UserPrincipal.create(user);
+        transactionService.createTransaction(transaction);
 
-        Assertions.assertTrue(transactionService.createTransaction(userPrincipal, transactionProceed));
-        Assertions.assertTrue(transactionService.getTransaction(1L).isPresent());
+        Optional<Transaction> transaction1 = transactionService.getTransaction(1L);
+        Assertions.assertTrue(transaction1.isPresent());
+        Assertions.assertEquals(transaction1.get().getAmount(), amount);
     }
 
-
     @Test
-    public void createTransactionWithAmountInferiorAtZeroTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450");
-        Users user2 = new Users( "john", "doe", "johnny", "jdoe@testmail.com", "450");
-        userRepository.save(user);
-        userRepository.save(user2);
+    public void transactionComputationTest() {
 
-        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", -100);
-        UserPrincipal userPrincipal = UserPrincipal.create(user);
-
-        Assertions.assertFalse(transactionService.createTransaction(userPrincipal, transactionProceed));
-        Assertions.assertFalse(transactionService.getTransaction(1L).isPresent());
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -76,14 +78,27 @@ public class UserController {
         }
     }
 
-    /**@PutMapping("/wallet")
-    public ResponseEntity<HttpStatus> updateWallet(@CurrentUser UserPrincipal currentUser, @RequestBody Integer wallet) {
-        if(userServiceImpl.updateWallet(currentUser, wallet)) {
-            logger.info("USER WALLET UPDATED");
+    @PutMapping("/wallet/add")
+    public ResponseEntity<HttpStatus> addMoneyToTheWallet(@CurrentUser UserPrincipal currentUser, @RequestBody BigDecimal sum) {
+        if(userServiceImpl.addMoneyToTheWallet(currentUser, sum)) {
+            logger.info("MONEY ADDED");
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            logger.error("USER WALLET CANNOT BE UPDATED");
+            logger.error("MONEY CANNOT BE ADDED");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-    }**/
+    }
+
+    @PutMapping("/wallet/remove")
+    public ResponseEntity<HttpStatus> removeMoneyFromTheWallet(@CurrentUser UserPrincipal currentUser, @RequestBody BigDecimal sum) {
+        if(userServiceImpl.removeMoneyFromTheWallet(currentUser, sum)) {
+            logger.info("MONEY REMOVED");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.error("MONEY CANNOT BE REMOVED");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 }

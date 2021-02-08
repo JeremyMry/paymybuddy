@@ -3,7 +3,6 @@ package com.paymybuddy.app.service.impl;
 import com.paymybuddy.app.exception.ResourceNotFoundException;
 import com.paymybuddy.app.entity.Contact;
 import com.paymybuddy.app.model.ContactDelete;
-import com.paymybuddy.app.model.ContactProceed;
 import com.paymybuddy.app.model.ContactSummary;
 import com.paymybuddy.app.model.ContactUpdate;
 import com.paymybuddy.app.repository.ContactRepository;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+@Transactional
 @Service
 public class ContactServiceImpl implements IContactService {
 
@@ -47,10 +46,9 @@ public class ContactServiceImpl implements IContactService {
     }
 
     @Override
-    @Transactional
-    public Boolean createContact(UserPrincipal currentUser, ContactProceed contactProceed) {
-        if(userRepository.existsByEmail(contactProceed.getEmail())) {
-            contactRepository.save(new Contact(contactProceed.getEmail(), contactProceed.getFirstName(), currentUser.getId()));
+    public Boolean createContact(UserPrincipal currentUser, ContactSummary contactSummary) {
+        if(userRepository.existsByEmail(contactSummary.getEmail())) {
+            contactRepository.save(new Contact(contactSummary.getEmail(), contactSummary.getFirstName(), currentUser.getId()));
             return true;
         } else {
             return false;

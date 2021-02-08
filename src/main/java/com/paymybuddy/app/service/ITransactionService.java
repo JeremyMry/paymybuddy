@@ -12,5 +12,6 @@ public interface ITransactionService {
     Optional<Transaction> getTransaction(Long transactionId);
     List<Transaction> getAllTransactionsMade(UserPrincipal currentUser);
     List<Transaction> getAllTransactionsReceived(UserPrincipal currentUser);
-    Boolean createTransaction(UserPrincipal currentUser, TransactionProceed transactionProceed);
+    void createTransaction(Transaction transaction);
+    Boolean transactionComputation(UserPrincipal currentUser, TransactionProceed transactionProceed);
 }

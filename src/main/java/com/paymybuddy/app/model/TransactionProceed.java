@@ -1,12 +1,16 @@
 package com.paymybuddy.app.model;
 
+import javax.validation.constraints.Digits;
+import java.math.BigDecimal;
+
 public class TransactionProceed {
 
     private Long creditor;
     private String reference;
-    private Integer amount;
+    @Digits(integer=5, fraction=2)
+    private BigDecimal amount;
 
-    public TransactionProceed(Long creditor, String reference, Integer amount) {
+    public TransactionProceed(Long creditor, String reference, BigDecimal amount) {
         this.creditor = creditor;
         this.reference = reference;
         this.amount = amount;
@@ -26,10 +30,10 @@ public class TransactionProceed {
         this.reference = reference;
     }
 
-    public Integer getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
-    public void setAmount(Integer amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 }

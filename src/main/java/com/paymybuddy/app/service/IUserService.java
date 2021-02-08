@@ -5,6 +5,7 @@ import com.paymybuddy.app.model.UserProfile;
 import com.paymybuddy.app.model.UserSummary;
 import com.paymybuddy.app.security.UserPrincipal;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface IUserService {
@@ -14,7 +15,10 @@ public interface IUserService {
     Boolean getUsernameAvailability(String username);
     Boolean getEmailAvailability(String email);
     UserProfile getUserProfile(String email);
-    /**Boolean updateWallet(UserPrincipal currentUser, Integer wallet);**/
+    Boolean addMoneyToTheWallet(UserPrincipal currentUser, BigDecimal wallet);
+    Boolean removeMoneyFromTheWallet(UserPrincipal currentUser, BigDecimal wallet);
+    void updateCreditorWallet(BigDecimal transactionAmount, Long creditorId);
+    void updateDebtorWallet(BigDecimal transactionAmount, Long debtorId);
     Boolean updatePassword(UserPrincipal currentUser, String password);
     Boolean updateEmail(UserPrincipal currentUser, String newEmail);
 }

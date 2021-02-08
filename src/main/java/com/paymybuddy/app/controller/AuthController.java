@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<HttpStatus> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if(authService.registerUser(signUpRequest).getSuccess()) {
+        if(authService.registerUser(signUpRequest)) {
             logger.info("ACCOUNT CREATED");
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } else {

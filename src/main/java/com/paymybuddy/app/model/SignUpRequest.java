@@ -1,5 +1,8 @@
 package com.paymybuddy.app.model;
 
+import net.bytebuddy.implementation.bind.annotation.Default;
+
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

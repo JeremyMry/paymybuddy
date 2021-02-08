@@ -1,6 +1,8 @@
 package com.paymybuddy.app.service.impl;
 
 import com.paymybuddy.app.entity.Transaction;
+import com.paymybuddy.app.entity.Users;
+import com.paymybuddy.app.exception.ResourceNotFoundException;
 import com.paymybuddy.app.model.TransactionProceed;
 import com.paymybuddy.app.repository.TransactionRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -9,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 @Service
 public class TransactionServiceImpl implements ITransactionService {
 
@@ -19,7 +23,10 @@ public class TransactionServiceImpl implements ITransactionService {
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private TransactionCalculatorImpl transactionCalculator;
+    UserServiceImpl userService;
+
+    @Autowired
+    BankTransferApiServiceMockImpl bankTransferApiServiceMock;
 
     @Override
     public Optional<Transaction> getTransaction(Long transactionId) { return transactionRepository.findById(transactionId); }
@@ -36,29 +43,29 @@ public class TransactionServiceImpl implements ITransactionService {
         return transactionRepository.findAllByCurrentCreditor(creditorId);
     }
 
-    @Transactional
     @Override
-    public Boolean createTransaction(UserPrincipal currentUser, TransactionProceed transactionProceed) {
-        if (transactionProceed.getAmount() <= 0) {
-            return false;
-        } else {
-            Transaction transaction = new Transaction(transactionProceed.getReference(), transactionProceed.getAmount(), transactionProceed.getCreditor(), currentUser.getId());
-            transactionRepository.save(transaction);
-            return true;
-         /**
-            Users debtor = userService.getProfile(transaction.getDebtor().getId()).get();
-            Users creditor = userService.getProfile(transaction.getCreditor().getId()).get();
-            Integer creditorWallet = creditor.getWallet() + transaction.getAmount();
-            Integer debtorWallet = debtor.getWallet()  - transaction.getAmount();
-
-            if (debtorWallet < 0) {
+    public Boolean transactionComputation(UserPrincipal currentUser, TransactionProceed transactionProceed) {
+        Users user = userService.getUser(currentUser.getId())
+                                .orElseThrow(() -> new ResourceNotFoundException("User", "currentUser", currentUser));
+        BigDecimal roundFee = (transactionProceed.getAmount().subtract(transactionProceed.getAmount().multiply(BigDecimal.valueOf(0.995))));
+        if(bankTransferApiServiceMock.transferMoneyToTheBankAccountMock(roundFee)){
+            BigDecimal amount = transactionProceed.getAmount().add(roundFee);
+            if (transactionProceed.getAmount().compareTo(BigDecimal.ZERO) <= 0.00) {
                 return false;
             } else {
-                //userService.updateWallet(debtorWallet, debtor.getId());
-                //userService.updateWallet(creditorWallet, creditor.getId());
-                transactionRepository.save(transaction);
+                userService.updateCreditorWallet(transactionProceed.getAmount(), transactionProceed.getCreditor());
+                userService.updateDebtorWallet(amount, user.getId());
+                Transaction transaction = new Transaction(transactionProceed.getReference(), transactionProceed.getAmount(), transactionProceed.getCreditor(), currentUser.getId());
+                createTransaction(transaction);
                 return true;
-            }**/
+            }
+        } else {
+            return false;
         }
+    }
+
+    @Override
+    public void createTransaction(Transaction transaction) {
+        transactionRepository.save(transaction);
     }
 }

@@ -36,7 +36,7 @@ public class TransactionController {
 
     @PostMapping("/create")
     public ResponseEntity<HttpStatus> createTransaction(@CurrentUser UserPrincipal currentUser, @RequestBody TransactionProceed transactionProceed) {
-        if(transactionService.createTransaction(currentUser, transactionProceed)) {
+        if(transactionService.transactionComputation(currentUser, transactionProceed)) {
             logger.info("TRANSACTION CREATED");
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {

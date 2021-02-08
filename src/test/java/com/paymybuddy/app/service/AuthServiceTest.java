@@ -4,7 +4,6 @@ import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.RoleName;
 import com.paymybuddy.app.entity.Users;
 import com.paymybuddy.app.exception.AppException;
-import com.paymybuddy.app.model.ApiResponse;
 import com.paymybuddy.app.model.LoginRequest;
 import com.paymybuddy.app.model.SignUpRequest;
 import com.paymybuddy.app.repository.RoleRepository;
@@ -19,6 +18,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
+
+import java.math.BigDecimal;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest
@@ -93,10 +94,9 @@ public class AuthServiceTest {
         roleRepository.save(role);
         roleRepository.save(role1);
 
-        ApiResponse apiResponse = authService.registerUser(signUpRequest);
+        Boolean aBoolean = authService.registerUser(signUpRequest);
 
-        Assertions.assertEquals(apiResponse.getMessage(), "User registered successfully");
-        Assertions.assertTrue(apiResponse.getSuccess());
+        Assertions.assertTrue(aBoolean);
     }
 
     @Test
@@ -122,13 +122,12 @@ public class AuthServiceTest {
         signUpRequest.setEmail("johndoe@testmail.com");
         signUpRequest.setPassword("pwd");
 
-        Users user = new Users("paul", "doe", "paulo", "johndoe@testmail.com", "450");
+        Users user = new Users("paul", "doe", "paulo", "johndoe@testmail.com", "450", BigDecimal.ZERO);
         userRepository.save(user);
 
-        ApiResponse apiResponse = authService.registerUser(signUpRequest);
+        Boolean aBoolean = authService.registerUser(signUpRequest);
 
-        Assertions.assertFalse(apiResponse.getSuccess());
-        Assertions.assertEquals(apiResponse.getMessage(), "Email Address already in use!");
+        Assertions.assertFalse(aBoolean);
     }
 
     @Test
@@ -140,12 +139,11 @@ public class AuthServiceTest {
         signUpRequest.setEmail("johndoe@testmail.com");
         signUpRequest.setPassword("pwd");
 
-        Users user = new Users("paul", "doe", "johnny", "pdoe@testmail.com", "450");
+        Users user = new Users("paul", "doe", "johnny", "pdoe@testmail.com", "450", BigDecimal.ZERO);
         userRepository.save(user);
 
-        ApiResponse apiResponse = authService.registerUser(signUpRequest);
+        Boolean aBoolean = authService.registerUser(signUpRequest);
 
-        Assertions.assertFalse(apiResponse.getSuccess());
-        Assertions.assertEquals(apiResponse.getMessage(), "Username is already taken!");
+        Assertions.assertFalse(aBoolean);
     }
 }

@@ -12,9 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.Optional;
 
-
+@Transactional
 @Service
 public class UserServiceImpl implements IUserService {
 
@@ -26,6 +28,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private ContactServiceImpl contactServiceImpl;
+
+    @Autowired
+    private BankTransferApiServiceMockImpl bankTransferApiServiceMock;
 
     @Autowired
     Logger logger;
@@ -53,14 +58,58 @@ public class UserServiceImpl implements IUserService {
         return new UserProfile(user.getUsername(), user.getEmail());
     }
 
-    /**@Override
-    public Boolean updateWallet(UserPrincipal currentUser, Integer wallet) {
+    @Override
+    public Boolean addMoneyToTheWallet(UserPrincipal currentUser, BigDecimal sum) {
         Users user = userRepository.findById(currentUser.getId())
                      .orElseThrow(() -> new ResourceNotFoundException("User", "currentUser", currentUser));
-        user.setWallet(wallet);
-        userRepository.save(user);
-        return true;
-    }**/
+        if(sum.compareTo(BigDecimal.ZERO) <= 0.00) {
+            logger.error("THE AMOUNT YOU WANT TO TRANSFER CANNOT BE INFERIOR TO 0");
+            return false;
+        } else if(bankTransferApiServiceMock.transferMoneyFromTheBankAccountMock(sum)) {
+            BigDecimal wallet = user.getWallet();
+            user.setWallet(wallet.add(sum));
+            userRepository.save(user);
+            return true;
+        } else {
+            logger.error("MONEY CANNOT BE TRANSFERRED FROM THE BANK ACCOUNT");
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean removeMoneyFromTheWallet(UserPrincipal currentUser, BigDecimal sum) {
+        Users user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "currentUser", currentUser));
+        BigDecimal wallet = user.getWallet().subtract(sum);
+        if(sum.compareTo(BigDecimal.ZERO) <= 0.00 || wallet.compareTo(BigDecimal.ZERO) <= 0) {
+            return false;
+        } else if(bankTransferApiServiceMock.transferMoneyToTheBankAccountMock(sum)){
+            user.setWallet(wallet);
+            userRepository.save(user);
+            return true;
+        } else {
+            logger.error("MONEY CANNOT BE TRANSFERRED TO THE BANK ACCOUNT");
+            return false;
+        }
+    }
+
+    @Override
+    public void updateCreditorWallet(BigDecimal transactionAmount, Long creditorId) {
+        Users creditor = userRepository.findById(creditorId)
+                         .orElseThrow(() -> new ResourceNotFoundException("User", "creditor", creditorId));
+        BigDecimal wallet = creditor.getWallet();
+        creditor.setWallet(wallet.add(transactionAmount));
+        userRepository.save(creditor);
+    }
+
+    @Override
+    public void updateDebtorWallet(BigDecimal transactionAmount, Long debtorId) {
+        Users debtor = userRepository.findById(debtorId)
+                                     .orElseThrow(() -> new ResourceNotFoundException("User", "debtor", debtorId));
+        BigDecimal wallet = debtor.getWallet();
+        debtor.setWallet(wallet.subtract(transactionAmount));
+        userRepository.save(debtor);
+    }
 
     @Override
     public Boolean updatePassword(UserPrincipal currentUser, String password) {
@@ -85,5 +134,4 @@ public class UserServiceImpl implements IUserService {
             return false;
         }
     }
-
 }
