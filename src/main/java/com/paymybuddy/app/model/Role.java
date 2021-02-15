@@ -1,4 +1,4 @@
-package com.paymybuddy.app.entity;
+package com.paymybuddy.app.model;
 
 import org.hibernate.annotations.NaturalId;
 import javax.persistence.*;

@@ -1,8 +1,8 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.entity.Transaction;
-import com.paymybuddy.app.entity.Users;
-import com.paymybuddy.app.model.TransactionProceed;
+import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.DTO.TransactionProceed;
 import com.paymybuddy.app.repository.TransactionRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -113,9 +113,8 @@ public class TransactionServiceTest {
 
         transactionService.createTransaction(transaction);
 
-        Optional<Transaction> transaction1 = transactionService.getTransaction(1L);
-        Assertions.assertTrue(transaction1.isPresent());
-        Assertions.assertEquals(transaction1.get().getAmount(), amount);
+        Transaction transaction1 = transactionService.getTransaction(1L);
+        Assertions.assertEquals(transaction1.getAmount(), amount);
     }
 
     @Test

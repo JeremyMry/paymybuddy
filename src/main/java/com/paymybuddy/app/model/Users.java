@@ -1,6 +1,4 @@
-package com.paymybuddy.app.entity;
-
-import org.springframework.beans.factory.annotation.Value;
+package com.paymybuddy.app.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;

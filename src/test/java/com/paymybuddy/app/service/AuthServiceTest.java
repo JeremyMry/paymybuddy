@@ -1,11 +1,11 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.entity.Role;
-import com.paymybuddy.app.entity.RoleName;
-import com.paymybuddy.app.entity.Users;
+import com.paymybuddy.app.model.Role;
+import com.paymybuddy.app.model.RoleName;
+import com.paymybuddy.app.model.Users;
 import com.paymybuddy.app.exception.AppException;
-import com.paymybuddy.app.model.LoginRequest;
-import com.paymybuddy.app.model.SignUpRequest;
+import com.paymybuddy.app.DTO.LoginRequest;
+import com.paymybuddy.app.DTO.SignUpRequest;
 import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.JwtTokenProvider;

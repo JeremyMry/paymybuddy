@@ -1,10 +1,9 @@
 package com.paymybuddy.app.service.impl;
 
 import com.paymybuddy.app.exception.ResourceNotFoundException;
-import com.paymybuddy.app.entity.Contact;
-import com.paymybuddy.app.model.ContactDelete;
-import com.paymybuddy.app.model.ContactSummary;
-import com.paymybuddy.app.model.ContactUpdate;
+import com.paymybuddy.app.model.Contact;
+import com.paymybuddy.app.DTO.ContactSummary;
+import com.paymybuddy.app.DTO.ContactUpdate;
 import com.paymybuddy.app.repository.ContactRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Transactional
 @Service
@@ -32,11 +30,26 @@ public class ContactServiceImpl implements IContactService {
     Logger logger;
 
     @Override
-    public Optional<Contact> getContact(Long contactId) { return contactRepository.findById(contactId); }
+    public Contact getContact(Long contactId) {
+        return contactRepository.findById(contactId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Contact", "id", contactId));
+    }
+
+    @Override
+    public Contact getContactByEmail(String email) {
+        return contactRepository.findByEmail(email)
+                                .orElseThrow(() -> new ResourceNotFoundException("Contact", "email", email));
+    }
+
+    @Override
+    public Boolean getEmailAvailability(String email) { return !contactRepository.existsByEmail(email); }
+
+    @Override
+    public List<Contact> findAllByCurrentUser(Long userId) { return contactRepository.findAllByCurrentUser(userId); }
 
     @Override
     public List<ContactSummary> getAllContacts(UserPrincipal currentUser) {
-        List<Contact> contactList = contactRepository.findAllByCurrentUser(currentUser.getId());
+        List<Contact> contactList = findAllByCurrentUser(currentUser.getId());
         List<ContactSummary> contactSummaryList = new ArrayList<>();
         contactList.forEach(contact -> {
             ContactSummary contactSummary = new ContactSummary(contact.getEmail(), contact.getFirstName());
@@ -51,16 +64,15 @@ public class ContactServiceImpl implements IContactService {
             contactRepository.save(new Contact(contactSummary.getEmail(), contactSummary.getFirstName(), currentUser.getId()));
             return true;
         } else {
+            userRepository.existsByEmail(contactSummary.getEmail());
             return false;
         }
     }
 
     @Override
     public void updateContactFirstName(UserPrincipal currentUser, ContactUpdate contactUpdate) {
-        Contact updatedContact = contactRepository.findById(contactUpdate.getId())
-                                                  .orElseThrow(() -> new ResourceNotFoundException("Contact", "id", contactUpdate.getId()));
-
-        List<Contact> contactList = contactRepository.findAllByCurrentUser(currentUser.getId());
+        Contact updatedContact = getContact(contactUpdate.getId());
+        List<Contact> contactList = findAllByCurrentUser(currentUser.getId());
         contactList.forEach(contact -> {
             if(contact.getEmail().equals(updatedContact.getEmail())) {
                 updatedContact.setFirstName(contactUpdate.getNewFirstName());
@@ -71,23 +83,15 @@ public class ContactServiceImpl implements IContactService {
     }
 
     @Override
-    public Boolean updateEmail(String email, String oldEmail) {
-        Optional<Contact> contact = contactRepository.findByEmail(oldEmail);
-        if(contact.isPresent()) {
-            contact.get().setEmail(email);
-            contactRepository.save(contact.get());
-            return true;
-        } else {
-            logger.info("THERE IS NO CONTACT WITH THIS EMAIL");
-            return false;
-        }
+    public void updateEmail(String email, String oldEmail) {
+        Contact contact = getContactByEmail(oldEmail);
+        contact.setEmail(email);
+        contactRepository.save(contact);
     }
 
     @Override
-    public void deleteContact(UserPrincipal currentUser, ContactDelete contactDelete) {
-        Contact deleteContact = contactRepository.findById(contactDelete.getId())
-                                                 .orElseThrow(() -> new ResourceNotFoundException("Contact", "id", contactDelete.getId()));
-
+    public void deleteContact(UserPrincipal currentUser, Long contactId) {
+        Contact deleteContact = getContact(contactId);
         List<Contact> contactList = contactRepository.findAllByCurrentUser(currentUser.getId());
         contactList.forEach(contact -> {
             if(contact.getId().equals(deleteContact.getId())) {

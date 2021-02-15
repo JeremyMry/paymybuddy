@@ -1,6 +1,6 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.model.TransactionProceed;
+import com.paymybuddy.app.DTO.TransactionProceed;
 import com.paymybuddy.app.security.CurrentUser;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.TransactionServiceImpl;

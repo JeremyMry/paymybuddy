@@ -1,7 +1,7 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.model.UserProfile;
-import com.paymybuddy.app.model.UserSummary;
+import com.paymybuddy.app.DTO.UserProfile;
+import com.paymybuddy.app.DTO.UserSummary;
 import com.paymybuddy.app.security.CurrentUser;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.UserServiceImpl;
@@ -23,26 +23,6 @@ public class UserController {
 
     @Autowired
     private Logger logger;
-
-    @GetMapping("/checkUsernameAvailability")
-    public ResponseEntity<HttpStatus> getUsernameAvailability(@RequestParam("username") String username) {
-        if(userServiceImpl.getUsernameAvailability(username)) {
-            logger.info("USERNAME AVAILABLE");
-        } else {
-            logger.error("USERNAME NOT AVAILABLE");
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/checkEmailAvailability")
-    public ResponseEntity<HttpStatus> getEmailAvailability(@RequestParam("email") String email) {
-        if(userServiceImpl.getEmailAvailability(email)) {
-            logger.info("EMAIL AVAILABLE");
-        } else {
-            logger.error("EMAIL NOT AVAILABLE");
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     @GetMapping("/findUser")
     public ResponseEntity<UserProfile> getUserProfile(@RequestParam("email") String email) {
@@ -69,13 +49,9 @@ public class UserController {
 
     @PutMapping("/password")
     public ResponseEntity<HttpStatus> updatePassword(@CurrentUser UserPrincipal currentUser, @RequestBody String password) {
-        if(userServiceImpl.updatePassword(currentUser, password)) {
-            logger.info("USER PASSWORD UPDATED");
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            logger.error("USER PASSWORD CANNOT BE UPDATED");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        userServiceImpl.updatePassword(currentUser, password);
+        logger.info("USER PASSWORD UPDATED");
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/wallet/add")

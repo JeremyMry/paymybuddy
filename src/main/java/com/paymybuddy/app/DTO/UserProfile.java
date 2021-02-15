@@ -1,6 +1,4 @@
-package com.paymybuddy.app.model;
-
-import java.time.Instant;
+package com.paymybuddy.app.DTO;
 
 public class UserProfile {
 

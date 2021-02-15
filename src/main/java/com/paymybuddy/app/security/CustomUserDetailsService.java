@@ -1,6 +1,6 @@
 package com.paymybuddy.app.security;
 
-import com.paymybuddy.app.entity.Users;
+import com.paymybuddy.app.model.Users;
 import com.paymybuddy.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,4 +1,4 @@
-package com.paymybuddy.app.model;
+package com.paymybuddy.app.DTO;
 
 public class ContactUpdate {
     private Long id;

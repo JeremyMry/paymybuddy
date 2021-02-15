@@ -1,8 +1,8 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.model.JwtAuthenticationResponse;
-import com.paymybuddy.app.model.LoginRequest;
-import com.paymybuddy.app.model.SignUpRequest;
+import com.paymybuddy.app.DTO.JwtAuthenticationResponse;
+import com.paymybuddy.app.DTO.LoginRequest;
+import com.paymybuddy.app.DTO.SignUpRequest;
 
 public interface IAuthService {
 

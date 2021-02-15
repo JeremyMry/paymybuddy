@@ -1,8 +1,7 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.model.ContactDelete;
-import com.paymybuddy.app.model.ContactSummary;
-import com.paymybuddy.app.model.ContactUpdate;
+import com.paymybuddy.app.DTO.ContactSummary;
+import com.paymybuddy.app.DTO.ContactUpdate;
 import com.paymybuddy.app.security.CurrentUser;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.ContactServiceImpl;
@@ -34,13 +33,8 @@ public class ContactController {
 
     @PostMapping("/create")
     public ResponseEntity<HttpStatus> createContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactSummary contactSummary) {
-        if(contactServiceImpl.createContact(currentUser, contactSummary)) {
-            logger.info("CONTACT CREATED");
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } else  {
-            logger.error("CANNOT CREATE THE CONTACT");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        contactServiceImpl.createContact(currentUser, contactSummary);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/put")
@@ -50,8 +44,8 @@ public class ContactController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<HttpStatus> deleteContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactDelete contactDelete) {
-        contactServiceImpl.deleteContact(currentUser, contactDelete);
+    public ResponseEntity<HttpStatus> deleteContact(@CurrentUser UserPrincipal currentUser, @RequestBody Long contactId) {
+        contactServiceImpl.deleteContact(currentUser, contactId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

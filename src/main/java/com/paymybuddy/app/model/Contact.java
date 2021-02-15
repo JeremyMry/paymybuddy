@@ -1,4 +1,4 @@
-package com.paymybuddy.app.entity;
+package com.paymybuddy.app.model;
 
 import javax.persistence.*;
 

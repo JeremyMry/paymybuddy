@@ -1,11 +1,10 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.entity.Contact;
-import com.paymybuddy.app.entity.Users;
+import com.paymybuddy.app.model.Contact;
+import com.paymybuddy.app.model.Users;
 import com.paymybuddy.app.exception.ResourceNotFoundException;
-import com.paymybuddy.app.model.ContactDelete;
-import com.paymybuddy.app.model.ContactSummary;
-import com.paymybuddy.app.model.ContactUpdate;
+import com.paymybuddy.app.DTO.ContactSummary;
+import com.paymybuddy.app.DTO.ContactUpdate;
 import com.paymybuddy.app.repository.ContactRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -39,12 +38,19 @@ public class ContactServiceTest {
         Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
         contactRepository.save(contact);
 
-        Assertions.assertTrue(contactService.getContact(1L).isPresent());
+        Assertions.assertEquals(contactService.getContact(1L).getEmail(), "jdoe@testmail.com");
     }
 
     @Test
     public void getContactThatDoesntExistTest() {
-        Assertions.assertFalse(contactService.getContact(1L).isPresent());
+        Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> {
+            contactService.getContact(1L);
+        });
+
+        String expectedMessage = "Contact not found with id : '1'";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
@@ -96,9 +102,9 @@ public class ContactServiceTest {
         Boolean bool = contactService.createContact(UserPrincipal.create(user), new ContactSummary("john", "johndoe@testmail.com"));
 
         Assertions.assertTrue(bool);
-        Assertions.assertEquals(contactService.getContact(1L).get().getEmail(), "johndoe@testmail.com");
-        Assertions.assertTrue(contactService.getContact(1L).get().getCreator() == 1L);
-        Assertions.assertEquals(contactService.getContact(1L).get().getFirstName(), "john");
+        Assertions.assertEquals(contactService.getContact(1L).getEmail(), "johndoe@testmail.com");
+        Assertions.assertTrue(contactService.getContact(1L).getCreator() == 1L);
+        Assertions.assertEquals(contactService.getContact(1L).getFirstName(), "john");
     }
 
     @Test
@@ -131,7 +137,7 @@ public class ContactServiceTest {
 
         contactService.updateContactFirstName(UserPrincipal.create(user), contactUpdate);
 
-        assertEquals(contactService.getContact(1L).get().getFirstName(), "johnny");
+        assertEquals(contactService.getContact(1L).getFirstName(), "johnny");
     }
 
     @Test
@@ -163,7 +169,7 @@ public class ContactServiceTest {
 
         contactService.updateContactFirstName(UserPrincipal.create(user), contactUpdate);
 
-        assertEquals(contactService.getContact(1L).get().getFirstName(), "Joey");
+        assertEquals(contactService.getContact(1L).getFirstName(), "Joey");
     }
 
     @Test
@@ -171,8 +177,9 @@ public class ContactServiceTest {
         Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
         contactRepository.save(contact);
 
-        assertTrue(contactService.updateEmail("joeydoe@testmail.com", "jdoe@testmail.com"));
-        assertEquals(contactService.getContact(1L).get().getEmail(), "joeydoe@testmail.com");
+        contactService.updateEmail("jodoe@testmail.com", "jdoe@testmail.com");
+
+        assertEquals(contactService.getContact(1L).getEmail(), "jodoe@testmail.com");
     }
 
     @Test
@@ -180,31 +187,42 @@ public class ContactServiceTest {
         Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
         contactRepository.save(contact);
 
-        assertFalse(contactService.updateEmail("joeydoe@testmail.com", "johndoe@testmail.com"));
-        assertEquals(contactService.getContact(1L).get().getEmail(), "jdoe@testmail.com");
+        Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> {
+            contactService.updateEmail("jodoe@testmail.com", "jodoe@testmail.com");
+        });
+
+        String expectedMessage = "Contact not found with email : 'jodoe@testmail.com'";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
     public void deleteContactTest() {
         Users users = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactDelete contactDelete = new ContactDelete(1L, 1L);
         Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
 
         contactRepository.save(contact);
         userRepository.save(users);
-        contactService.deleteContact(UserPrincipal.create(users), contactDelete);
+        contactService.deleteContact(UserPrincipal.create(users), 1L);
 
-        assertFalse(contactService.getContact(1L).isPresent());
+        Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> {
+            contactService.getContact(1L);
+        });
+
+        String expectedMessage = "Contact not found with id : '1'";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
     public void deleteContactThatDoesntExistTest() {
         Users users = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactDelete contactDelete = new ContactDelete(1L, 1L);
         userRepository.save(users);
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> {
-            contactService.deleteContact(UserPrincipal.create(users), contactDelete);
+            contactService.deleteContact(UserPrincipal.create(users), 1L);
         });
 
         String expectedMessage = "Contact not found with id : '1'";
@@ -216,13 +234,12 @@ public class ContactServiceTest {
     @Test
     public void deleteContactThatIsNotCreatedByTheCurrentUserTest() {
         Users users = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactDelete contactDelete = new ContactDelete(1L, 1L);
         Contact contact = new Contact("jdoe@testmail.com", "Joey", 2L);
 
         contactRepository.save(contact);
         userRepository.save(users);
-        contactService.deleteContact(UserPrincipal.create(users), contactDelete);
+        contactService.deleteContact(UserPrincipal.create(users), 1L);
 
-        assertTrue(contactService.getContact(1L).isPresent());
+        assertTrue(contactService.getContact(1L).getFirstName() == "Joey");
     }
 }

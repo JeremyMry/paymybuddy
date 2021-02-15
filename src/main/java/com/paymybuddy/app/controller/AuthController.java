@@ -1,8 +1,8 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.model.JwtAuthenticationResponse;
-import com.paymybuddy.app.model.LoginRequest;
-import com.paymybuddy.app.model.SignUpRequest;
+import com.paymybuddy.app.DTO.JwtAuthenticationResponse;
+import com.paymybuddy.app.DTO.LoginRequest;
+import com.paymybuddy.app.DTO.SignUpRequest;
 import com.paymybuddy.app.service.impl.AuthServiceImpl;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

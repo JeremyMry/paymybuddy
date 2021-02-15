@@ -1,4 +1,4 @@
-package com.paymybuddy.app.model;
+package com.paymybuddy.app.DTO;
 
 import java.math.BigDecimal;
 

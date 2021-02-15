@@ -1,9 +1,9 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.entity.Users;
+import com.paymybuddy.app.model.Users;
 import com.paymybuddy.app.exception.ResourceNotFoundException;
-import com.paymybuddy.app.model.UserProfile;
-import com.paymybuddy.app.model.UserSummary;
+import com.paymybuddy.app.DTO.UserProfile;
+import com.paymybuddy.app.DTO.UserSummary;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.BankTransferApiServiceMockImpl;
@@ -43,12 +43,19 @@ public class UserServiceTest {
 
         userRepository.save(user);
 
-        assertTrue(userService.getUser(1L).isPresent());
+        assertEquals(userService.getUser(1L).getEmail(), "pdoe@testmail.com");
     }
 
     @Test
     public void getUserTestThatDoesntExistTest() {
-        Assertions.assertFalse(userService.getUser(2L).isPresent());
+        Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> {
+            userService.getUser(2L);
+        });
+
+        String expectedMessage = "User not found with id : '2'";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
@@ -110,7 +117,7 @@ public class UserServiceTest {
 
         userService.updatePassword(UserPrincipal.create(user), "abc");
 
-        Assertions.assertNotEquals(userService.getUser(1L).get().getPassword(), user.getPassword());
+        Assertions.assertNotEquals(userService.getUser(1L).getPassword(), user.getPassword());
     }
 
     @Test
@@ -127,7 +134,7 @@ public class UserServiceTest {
         userRepository.save(user);
 
         assertTrue(userService.updateEmail(UserPrincipal.create(user), "jdoe@testmail.com"));
-        assertEquals(userService.getUser(1L).get().getEmail(), "jdoe@testmail.com");
+        assertEquals(userService.getUser(1L).getEmail(), "jdoe@testmail.com");
     }
 
     @Test
@@ -169,7 +176,7 @@ public class UserServiceTest {
         Boolean bool = userService.addMoneyToTheWallet(UserPrincipal.create(user), sum);
 
 
-        assertEquals(userService.getUser(1L).get().getWallet(), sum);
+        assertEquals(userService.getUser(1L).getWallet(), sum);
         assertTrue(bool);
     }
 
@@ -194,7 +201,7 @@ public class UserServiceTest {
 
         Boolean bool = userService.removeMoneyFromTheWallet(UserPrincipal.create(user), sum);
 
-        assertEquals(userService.getUser(1L).get().getWallet(), wallet.subtract(sum));
+        assertEquals(userService.getUser(1L).getWallet(), wallet.subtract(sum));
         assertTrue(bool);
     }
 
@@ -231,7 +238,7 @@ public class UserServiceTest {
 
         userService.updateCreditorWallet(amount, user.getId());
 
-        assertEquals(userService.getUser(1L).get().getWallet(), wallet.add(amount));
+        assertEquals(userService.getUser(1L).getWallet(), wallet.add(amount));
     }
 
     @Test
@@ -253,7 +260,7 @@ public class UserServiceTest {
 
         userService.updateDebtorWallet(amount, user.getId());
 
-        assertEquals(userService.getUser(1L).get().getWallet(), wallet.subtract(amount));
+        assertEquals(userService.getUser(1L).getWallet(), wallet.subtract(amount));
     }
 
     @Test

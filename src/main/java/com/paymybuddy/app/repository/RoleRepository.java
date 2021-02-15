@@ -1,7 +1,7 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.entity.Role;
-import com.paymybuddy.app.entity.RoleName;
+import com.paymybuddy.app.model.Role;
+import com.paymybuddy.app.model.RoleName;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

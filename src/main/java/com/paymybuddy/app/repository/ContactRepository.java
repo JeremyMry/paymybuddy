@@ -1,6 +1,6 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.entity.Contact;
+import com.paymybuddy.app.model.Contact;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,4 +16,6 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     List<Contact> findAllByCurrentUser(@Param("userId") Long userId);
 
     Optional<Contact> findByEmail(String email);
+
+    Boolean existsByEmail(String email);
 }
