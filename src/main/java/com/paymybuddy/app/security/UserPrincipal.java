@@ -30,20 +30,16 @@ public class UserPrincipal implements UserDetails {
     @JsonIgnore
     private BigDecimal wallet;
 
-    private Collection<? extends GrantedAuthority> authorities;
-
-    public UserPrincipal(Long id, String firstName, String lastName, String username, String email, String password, BigDecimal wallet, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String firstName, String lastName, String username, String email, String password, BigDecimal wallet) {
         this.id = id;
         this.firstName =firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
-        this.authorities = authorities;
     }
 
     public static UserPrincipal create(Users user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
 
         return new UserPrincipal(
                 user.getId(),
@@ -52,8 +48,7 @@ public class UserPrincipal implements UserDetails {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getWallet(),
-                authorities
+                user.getWallet()
         );
     }
 
@@ -79,13 +74,13 @@ public class UserPrincipal implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return password;
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+    public String getPassword() {
+        return password;
     }
 
     @Override

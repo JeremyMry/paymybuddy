@@ -47,12 +47,6 @@ public class Users {
     @Digits(integer=5, fraction=2)
     private BigDecimal wallet;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
-
     public Users() {
     }
 
@@ -120,13 +114,6 @@ public class Users {
         this.wallet = wallet;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
-    }
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
     @Override
     public String toString() {
         return "Users{" +
@@ -137,7 +124,6 @@ public class Users {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", wallet=" + wallet +
-                ", roles=" + roles +
                 '}';
     }
 }

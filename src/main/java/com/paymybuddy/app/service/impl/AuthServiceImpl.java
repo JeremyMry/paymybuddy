@@ -1,13 +1,9 @@
 package com.paymybuddy.app.service.impl;
 
-import com.paymybuddy.app.exception.AppException;
-import com.paymybuddy.app.model.Role;
-import com.paymybuddy.app.model.RoleName;
 import com.paymybuddy.app.model.Users;
 import com.paymybuddy.app.DTO.JwtAuthenticationResponse;
 import com.paymybuddy.app.DTO.LoginRequest;
 import com.paymybuddy.app.DTO.SignUpRequest;
-import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.JwtTokenProvider;
 import com.paymybuddy.app.service.IAuthService;
@@ -22,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.Collections;
 
 @Transactional
 @Service
@@ -33,9 +28,6 @@ public class AuthServiceImpl implements IAuthService {
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -67,9 +59,6 @@ public class AuthServiceImpl implements IAuthService {
             BigDecimal wallet = new BigDecimal("0.00");
             Users user = new Users(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(), signUpRequest.getEmail(), signUpRequest.getPassword(), wallet);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                                          .orElseThrow(() -> new AppException("User Role not set."));
-            user.setRoles(Collections.singleton(userRole));
             logger.info("User registered successfully");
             userRepository.save(user);
             return true;

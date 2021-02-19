@@ -25,7 +25,6 @@ public class ContactController {
     private Logger logger;
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List> getAllContacts(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
         return new ResponseEntity<>(contactServiceImpl.getAllContacts(currentUser), HttpStatus.OK);
@@ -33,8 +32,14 @@ public class ContactController {
 
     @PostMapping("/create")
     public ResponseEntity<HttpStatus> createContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactSummary contactSummary) {
-        contactServiceImpl.createContact(currentUser, contactSummary);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if(contactServiceImpl.createContact(currentUser, contactSummary)) {
+            logger.info("CONTACT CREATED");
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } else {
+            logger.error("CONTACT CANNOT BE CREATED");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @PutMapping("/put")

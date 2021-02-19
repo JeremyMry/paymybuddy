@@ -1,12 +1,8 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.model.Role;
-import com.paymybuddy.app.model.RoleName;
 import com.paymybuddy.app.model.Users;
-import com.paymybuddy.app.exception.AppException;
 import com.paymybuddy.app.DTO.LoginRequest;
 import com.paymybuddy.app.DTO.SignUpRequest;
-import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.JwtTokenProvider;
 import com.paymybuddy.app.service.impl.AuthServiceImpl;
@@ -35,9 +31,6 @@ public class AuthServiceTest {
     UserRepository userRepository;
 
     @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
     PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -51,13 +44,6 @@ public class AuthServiceTest {
         signUpRequest.setUsername("johnny");
         signUpRequest.setEmail("johndoe@testmail.com");
         signUpRequest.setPassword("pwd");
-
-        Role role = new Role();
-        role.setName(RoleName.ROLE_USER);
-        Role role1 = new Role();
-        role1.setName(RoleName.ROLE_ADMIN);
-        roleRepository.save(role);
-        roleRepository.save(role1);
 
         authService.registerUser(signUpRequest);
 
@@ -86,31 +72,9 @@ public class AuthServiceTest {
         signUpRequest.setEmail("johndoe@testmail.com");
         signUpRequest.setPassword("pwd");
 
-        Role role = new Role();
-        role.setName(RoleName.ROLE_USER);
-        Role role1 = new Role();
-        role1.setName(RoleName.ROLE_ADMIN);
-
-        roleRepository.save(role);
-        roleRepository.save(role1);
-
         Boolean aBoolean = authService.registerUser(signUpRequest);
 
         Assertions.assertTrue(aBoolean);
-    }
-
-    @Test
-    public void registerUserWithNoRoleSet() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
-
-        Assertions.assertThrows(AppException.class, () ->
-            authService.registerUser(signUpRequest)
-        );
     }
 
     @Test

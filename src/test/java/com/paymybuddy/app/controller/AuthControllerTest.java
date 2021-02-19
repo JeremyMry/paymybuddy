@@ -1,69 +1,85 @@
 package com.paymybuddy.app.controller;
 
-import ch.ethz.ssh2.auth.AuthenticationManager;
-import com.paymybuddy.app.DTO.JwtAuthenticationResponse;
 import com.paymybuddy.app.DTO.LoginRequest;
-import com.paymybuddy.app.model.Role;
-import com.paymybuddy.app.model.RoleName;
-import com.paymybuddy.app.model.Users;
-import com.paymybuddy.app.repository.RoleRepository;
-import com.paymybuddy.app.repository.UserRepository;
-import com.paymybuddy.app.service.impl.AuthServiceImpl;
+import com.paymybuddy.app.DTO.SignUpRequest;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class AuthControllerTest {
 
-    @MockBean
-    UserRepository userRepository;
-
-    @MockBean
-    AuthServiceImpl authService;
-
     @Autowired
-    MockMvc mockMvc;
+    AuthController authController;
 
     @Test
-    public void signinTest() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("jdoe");
-        loginRequest.setPassword("abc");
+    public void signUpTest() {
+        SignUpRequest signUpRequest = new SignUpRequest();
+        signUpRequest.setFirstName("john");
+        signUpRequest.setLastName("doe");
+        signUpRequest.setUsername("johnny");
+        signUpRequest.setEmail("johndoe@testmail.com");
+        signUpRequest.setPassword("pwd");
 
-        when(authService.authenticateUser(loginRequest)).thenReturn(new JwtAuthenticationResponse("eeee"));
-        MockHttpServletResponse response = this.mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/auth/signin")
-                                      .contentType(MediaType.APPLICATION_JSON).content("{\"usernameOrEmail\": \"jdoe\",\"password\": \"abc\"}"))
-                                      .andReturn().getResponse();
-
-        Assertions.assertEquals(response.getStatus(), HttpStatus.ACCEPTED.value());
+        Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.ACCEPTED));
     }
 
     @Test
-    public void signinTestError() throws Exception {
-        MockHttpServletResponse response = this.mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/auth/signin")
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"usernameOrEmail\": \"jdoe\",\"password\": \"abc\"}"))
-                .andReturn().getResponse();
+    public void signUpTestWithAlreadyExistingEmail() {
+        SignUpRequest signUpRequest = new SignUpRequest();
+        signUpRequest.setFirstName("john");
+        signUpRequest.setLastName("doe");
+        signUpRequest.setUsername("joohnny");
+        signUpRequest.setEmail("johndoe@testmail.com");
+        signUpRequest.setPassword("pwd");
 
-        Assertions.assertEquals(response.getStatus(), HttpStatus.UNAUTHORIZED.value());
+        Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    public void signUpTestWithAlreadyExistingUsername() {
+        SignUpRequest signUpRequest = new SignUpRequest();
+        signUpRequest.setFirstName("john");
+        signUpRequest.setLastName("doe");
+        signUpRequest.setUsername("johnny");
+        signUpRequest.setEmail("joohndoe@testmail.com");
+        signUpRequest.setPassword("pwd");
+
+        Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    public void signinTest() {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsernameOrEmail("johnny");
+        loginRequest.setPassword("pwd");
+
+
+        Assertions.assertEquals(authController.authenticateUser(loginRequest).getStatusCode(), HttpStatus.ACCEPTED);
+    }
+
+    @Test
+    public void signInWithUnregisteredCredentialsTest() {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setPassword("abyc");
+        loginRequest.setUsernameOrEmail("joey");
+
+        Exception exception = Assert.assertThrows(BadCredentialsException.class, () -> {
+            authController.authenticateUser(loginRequest);
+        });
+
+        String expectedMessage = "Bad credentials";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }

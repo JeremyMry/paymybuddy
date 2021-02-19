@@ -129,7 +129,7 @@ public class ContactServiceTest {
     @Test
     public void updateContactFirstNameTest() {
         Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "john", "johnny");
+        ContactUpdate contactUpdate = new ContactUpdate(1L, "johnny");
         Contact contact = new Contact("jdoe@testmail.com", "john", 1L);
 
         userRepository.save(user);
@@ -143,7 +143,7 @@ public class ContactServiceTest {
     @Test
     public void updateContactFirstNameWithoutContactTest() {
         Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "john", "johnny");
+        ContactUpdate contactUpdate = new ContactUpdate(1L, "johnny");
         userRepository.save(user);
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> {
@@ -161,7 +161,7 @@ public class ContactServiceTest {
         Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
         Contact contact = new Contact("jdoe@testmail.com", "Joey", 2L);
         Contact contact2 = new Contact("pdoe@testmail.com", "Paul", 2L);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "john", "johnny");
+        ContactUpdate contactUpdate = new ContactUpdate(1L, "johnny");
 
         userRepository.save(user);
         contactRepository.save(contact);
