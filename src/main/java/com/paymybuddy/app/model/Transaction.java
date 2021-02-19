@@ -1,26 +1,35 @@
 package com.paymybuddy.app.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "transaction")
 public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private Long transactionId;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 25)
     private String reference;
 
-    @Column(nullable = false)
+    @NotBlank
+    @NotNull
+    @Digits(integer=5, fraction=2)
     private BigDecimal amount;
 
-    @Column(nullable = false)
+    @NotBlank
+    @NotNull
     private Long creditor;
 
-    @Column(nullable = false)
+    @NotBlank
+    @NotNull
     private Long debtor;
 
     public Transaction() {}

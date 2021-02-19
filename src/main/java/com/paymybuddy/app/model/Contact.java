@@ -1,21 +1,28 @@
 package com.paymybuddy.app.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
+@Table(name = "contact")
 public class Contact {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contactId;
 
-    @Column(length = 64, nullable = false)
+    @NotBlank
+    @Size(max = 40)
     private String email;
 
-    @Column(length = 64, nullable = false)
+    @NotBlank
+    @Size(max = 25)
     private String firstName;
 
-    @Column(length = 64, nullable = false)
+    @NotBlank
+    @NotNull
     private Long creator;
 
     public Contact() {}

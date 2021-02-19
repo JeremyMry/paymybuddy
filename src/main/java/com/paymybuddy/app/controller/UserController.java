@@ -30,7 +30,6 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
         return new ResponseEntity<>(userServiceImpl.getCurrentUser(currentUser), HttpStatus.OK);

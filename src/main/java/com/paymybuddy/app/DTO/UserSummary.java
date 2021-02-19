@@ -57,4 +57,15 @@ public class UserSummary {
     public void setWallet(BigDecimal wallet) {
         this.wallet = wallet;
     }
+
+    @Override
+    public String toString() {
+        return "UserSummary{" +
+                "username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", wallet=" + wallet +
+                '}';
+    }
 }
