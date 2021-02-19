@@ -11,6 +11,10 @@ import com.paymybuddy.app.service.impl.UserServiceImpl;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -20,6 +24,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @DirtiesContext(classMode=DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest
@@ -33,9 +38,6 @@ public class UserServiceTest {
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    BankTransferApiServiceMockImpl bankTransferApiServiceMock;
 
     @Test
     public void getUserTest() {
@@ -229,6 +231,7 @@ public class UserServiceTest {
         assertFalse(bool);
     }
 
+
    @Test
     public void updateCreditorWalletTest() {
         BigDecimal amount = new BigDecimal("150.00");
@@ -264,7 +267,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void updateCDebtorWalletNoDebtorTest() {
+    public void updateDebtorWalletNoDebtorTest() {
         BigDecimal amount = new BigDecimal("150.00");
         BigDecimal wallet = new BigDecimal("450.00");
         Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
