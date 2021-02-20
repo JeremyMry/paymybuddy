@@ -21,13 +21,16 @@ import java.util.List;
 public class ContactServiceImpl implements IContactService {
 
     @Autowired
-    private ContactRepository contactRepository;
+    ContactRepository contactRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @Autowired
     Logger logger;
+
+    public ContactServiceImpl() {
+    }
 
     @Override
     public Contact getContact(Long contactId) {

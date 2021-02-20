@@ -2,7 +2,6 @@ package com.paymybuddy.app.security;
 
 import io.jsonwebtoken.*;
 import org.apache.logging.log4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -14,13 +13,13 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     @Autowired
-    private Logger logger;
+    Logger logger;
 
     @Value("${app.jwtSecret}")
-    private String jwtSecret;
+    String jwtSecret;
 
     @Value("${app.jwtExpirationInMs}")
-    private int jwtExpirationInMs;
+    int jwtExpirationInMs;
 
     public String generateToken(Authentication authentication) {
 

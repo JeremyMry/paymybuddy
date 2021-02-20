@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public class ContactController {
     ContactServiceImpl contactServiceImpl;
 
     @Autowired
-    private Logger logger;
+    Logger logger;
 
     @GetMapping("/all")
     public ResponseEntity<List> getAllContacts(@CurrentUser UserPrincipal currentUser) {

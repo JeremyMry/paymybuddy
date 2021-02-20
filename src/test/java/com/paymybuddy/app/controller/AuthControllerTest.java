@@ -21,6 +21,7 @@ public class AuthControllerTest {
     @Autowired
     AuthController authController;
 
+    // test the signup controller / must return the HttpStatus.ACCEPTED
     @Test
     public void signUpTest() {
         SignUpRequest signUpRequest = new SignUpRequest();
@@ -33,6 +34,7 @@ public class AuthControllerTest {
         Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.ACCEPTED));
     }
 
+    // test the signup controller with an already existing email / must return the HttpStatus.BAD_REQUEST
     @Test
     public void signUpTestWithAlreadyExistingEmail() {
         SignUpRequest signUpRequest = new SignUpRequest();
@@ -45,6 +47,7 @@ public class AuthControllerTest {
         Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
+    // test the signup controller with an already existing username / must return the HttpStatus.BAD_REQUEST
     @Test
     public void signUpTestWithAlreadyExistingUsername() {
         SignUpRequest signUpRequest = new SignUpRequest();
@@ -57,6 +60,7 @@ public class AuthControllerTest {
         Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
+    // test the signin controller / must return the HttpStatus.ACCEPTED
     @Test
     public void signinTest() {
         LoginRequest loginRequest = new LoginRequest();
@@ -67,15 +71,14 @@ public class AuthControllerTest {
         Assertions.assertEquals(authController.authenticateUser(loginRequest).getStatusCode(), HttpStatus.ACCEPTED);
     }
 
+    // test the signin controller with unknown credentials / must throw an exception
     @Test
     public void signInWithUnregisteredCredentialsTest() {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setPassword("abyc");
         loginRequest.setUsernameOrEmail("joey");
 
-        Exception exception = Assert.assertThrows(BadCredentialsException.class, () -> {
-            authController.authenticateUser(loginRequest);
-        });
+        Exception exception = Assert.assertThrows(BadCredentialsException.class, () -> authController.authenticateUser(loginRequest));
 
         String expectedMessage = "Bad credentials";
         String actualMessage = exception.getMessage();

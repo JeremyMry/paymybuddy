@@ -15,7 +15,6 @@ public interface IContactService {
     Boolean getEmailAvailability(String email);
     List<Contact> findAllByCurrentUser(Long userId);
     List<ContactSummary> getAllContacts(UserPrincipal currentUser);
-    @Transactional
     Boolean createContact(UserPrincipal currentUser, ContactSummary contactSummary);
     void updateContactFirstName(UserPrincipal currentUser, ContactUpdate contactUpdate);
     void updateEmail(String email, String oldEmail);

@@ -3,7 +3,6 @@ package com.paymybuddy.app.service.impl;
 import com.paymybuddy.app.service.IBankTransferApiServiceMock;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 
 @Service

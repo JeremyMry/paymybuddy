@@ -20,16 +20,16 @@ import java.math.BigDecimal;
 public class UserServiceImpl implements IUserService {
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @Autowired
-    private ContactServiceImpl contactServiceImpl;
+    ContactServiceImpl contactServiceImpl;
 
     @Autowired
-    private BankTransferApiServiceMockImpl bankTransferApiServiceMock;
+    BankTransferApiServiceMockImpl bankTransferApiServiceMock;
 
     @Autowired
     Logger logger;

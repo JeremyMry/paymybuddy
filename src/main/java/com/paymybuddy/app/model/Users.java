@@ -3,8 +3,6 @@ package com.paymybuddy.app.model;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
@@ -76,14 +74,13 @@ public class Users {
     public String getLastName() {
         return lastName;
     }
-    public void setName(String lastName) {
+    public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
     public String getUsername() {
         return username;
     }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -102,14 +99,11 @@ public class Users {
         this.password = password;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+
 
     public BigDecimal getWallet() {
         return wallet;
     }
-
     public void setWallet(BigDecimal wallet) {
         this.wallet = wallet;
     }

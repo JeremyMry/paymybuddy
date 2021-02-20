@@ -6,7 +6,6 @@ import com.paymybuddy.app.model.Users;
 import com.paymybuddy.app.repository.TransactionRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
-import com.paymybuddy.app.service.impl.TransactionServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
-
-import static org.mockito.Mockito.when;
+import java.util.Objects;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
@@ -40,6 +38,8 @@ public class TransactionControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    // test the transaction create controller / must create the transaction and return an HttpStatus.CREATED
     @Test
     public void createTransactionTest() {
         BigDecimal bigDecimal = new BigDecimal(450);
@@ -52,6 +52,7 @@ public class TransactionControllerTest {
         Assertions.assertEquals(transactionController.createTransaction(UserPrincipal.create(user), transactionProceed), new ResponseEntity<>(HttpStatus.CREATED));
     }
 
+    // test the transaction create controller with incorrect values / must return an HttpStatus.BAD_REQUEST
     @Test
     public void createTransactionBadRequestTest() {
         Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
@@ -63,6 +64,7 @@ public class TransactionControllerTest {
         Assertions.assertEquals(transactionController.createTransaction(UserPrincipal.create(user), transactionProceed), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
+    // test the transaction create controller without current user / must return an HttpStatus.UNAUTHORIZED
     @Test
     public void createTransactionNoCurrentUser() throws Exception {
         MockHttpServletResponse response = this.mockMvc.perform(
@@ -74,6 +76,7 @@ public class TransactionControllerTest {
         Assertions.assertEquals(response.getStatus(), HttpStatus.UNAUTHORIZED.value());
     }
 
+    // test the get all transactions made controller / must return a LIst of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionMade() {
         Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
@@ -85,19 +88,21 @@ public class TransactionControllerTest {
         Transaction transaction1 = new Transaction("debt", BigDecimal.TEN, 2L, 1L);
         transactionRepository.save(transaction1);
 
-        Assertions.assertEquals(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getBody().size(), 2);
+        Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getBody()).size(), 2);
         Assertions.assertEquals(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
     }
 
+    // test the get all transactions made controller when there is no transactions made / must return an empty List of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionMadeWhenThereIsNone() {
         Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
         userRepository.save(user);
 
-        Assertions.assertEquals(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getBody().size(), 0);
+        Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getBody()).size(), 0);
         Assertions.assertEquals(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
     }
 
+    // test the get all transactions made controller when there is no current user / must return  an HttpStatus.UNAUTHORIZED
     @Test
     public void getAllTransactionMadeWithoutCurrentUser() throws Exception {
         MockHttpServletResponse response = this.mockMvc.perform(
@@ -108,6 +113,7 @@ public class TransactionControllerTest {
         Assertions.assertEquals(response.getStatus(), HttpStatus.UNAUTHORIZED.value());
     }
 
+    // test the get all transactions received controller / must return a List of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionDone() {
         Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
@@ -119,19 +125,21 @@ public class TransactionControllerTest {
         Transaction transaction1 = new Transaction("debt", BigDecimal.TEN, 1L, 2L);
         transactionRepository.save(transaction1);
 
-        Assertions.assertEquals(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getBody().size(), 2);
+        Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getBody()).size(), 2);
         Assertions.assertEquals(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
     }
 
+    // test the get all transactions received controller when there is no transactions received / must return an empty List of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionDoneWhenThereIsNone() {
         Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
         userRepository.save(user);
 
-        Assertions.assertEquals(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getBody().size(), 0);
+        Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getBody()).size(), 0);
         Assertions.assertEquals(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
     }
 
+    // test the get all transactions received controller when there is no current user / must return  an HttpStatus.UNAUTHORIZED
     @Test
     public void getAllTransactionDoneWithoutCurrentUser() throws Exception {
         MockHttpServletResponse response = this.mockMvc.perform(

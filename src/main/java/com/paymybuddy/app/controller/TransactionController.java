@@ -17,10 +17,10 @@ import java.util.List;
 public class TransactionController {
 
     @Autowired
-    private TransactionServiceImpl transactionService;
+    TransactionServiceImpl transactionService;
 
     @Autowired
-    private Logger logger;
+    Logger logger;
 
     @GetMapping("/made")
     public ResponseEntity<List> getAllTransactionsMade(@CurrentUser UserPrincipal currentUser) {

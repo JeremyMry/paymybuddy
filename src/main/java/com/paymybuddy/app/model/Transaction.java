@@ -32,9 +32,6 @@ public class Transaction {
     @NotNull
     private Long debtor;
 
-    public Transaction() {}
-
-
     public Transaction(String reference, BigDecimal amount, Long creditor, Long debtor) {
         this.reference = reference;
         this.amount = amount;
