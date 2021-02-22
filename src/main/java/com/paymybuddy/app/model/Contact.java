@@ -25,6 +25,9 @@ public class Contact {
     @NotNull
     private Long creator;
 
+
+    public Contact() {}
+
     public Contact(String email, String firstName, Long creator) {
         this.email = email;
         this.firstName = firstName;

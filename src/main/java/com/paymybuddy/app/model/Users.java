@@ -45,8 +45,7 @@ public class Users {
     @Digits(integer=5, fraction=2)
     private BigDecimal wallet;
 
-    public Users() {
-    }
+    public Users() {}
 
     public Users(String firstName, String lastName, String username, String email, String password, BigDecimal wallet) {
         this.firstName = firstName;

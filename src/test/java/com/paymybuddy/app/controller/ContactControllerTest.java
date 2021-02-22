@@ -191,7 +191,7 @@ public class ContactControllerTest {
     @Test
     public void getAllContactWithoutCurrentUser() throws Exception {
         MockHttpServletResponse response = this.mockMvc.perform(
-                MockMvcRequestBuilders.delete("/api/contact/all")
+                MockMvcRequestBuilders.get("/api/contact/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
