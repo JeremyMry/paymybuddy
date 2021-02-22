@@ -1,4 +1,5 @@
 CREATE DATABASE paymybuddy;
+use paymybuddy;
 
 DROP TABLE IF EXISTS `contact`;
 CREATE TABLE `contact` (
