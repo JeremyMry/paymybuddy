@@ -16,7 +16,7 @@ CREATE TABLE `transaction` (
   `amount` decimal(5,2) NOT NULL,
   `creditor` bigint NOT NULL,
   `debtor` bigint NOT NULL,
-  `reference` varchar(255) NOT NULL,
+  `reference` varchar(25) NOT NULL,
   PRIMARY KEY (`transaction_id`)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
