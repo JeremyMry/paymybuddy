@@ -25,28 +25,27 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Size(max = 25)
+    @NotNull
+    @Size(max = 40)
     private String firstName;
 
-    @NotBlank
-    @Size(max = 25)
+    @NotNull
+    @Size(max = 40)
     private String lastName;
 
-    @NotBlank
-    @Size(max = 25)
+    @NotNull
+    @Size(max = 40)
     private String username;
 
-    @NotBlank
+    @NotNull
     @Size(max = 40)
     @Email
     private String email;
 
-    @NotBlank
-    @Size(max = 100)
+    @NotNull
+    @Size(max = 255)
     private String password;
 
-    @NotBlank
     @NotNull
     @Digits(integer=5, fraction=2)
     private BigDecimal wallet;

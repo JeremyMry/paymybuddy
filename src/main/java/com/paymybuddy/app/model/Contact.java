@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -14,16 +15,16 @@ public class Contact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contactId;
 
-    @NotBlank
+    @NotNull
     @Size(max = 40)
     private String email;
 
-    @NotBlank
-    @Size(max = 25)
+    @NotNull
+    @Size(max = 40)
     private String firstName;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id",referencedColumnName="id")
+    @JoinColumn(name = "creator",referencedColumnName="id")
     private User creator;
 
     public Contact() {}

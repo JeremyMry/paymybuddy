@@ -17,23 +17,22 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
-    @NotBlank
-    @Size(max = 25)
+    @NotNull
+    @Size(max = 40)
     private String reference;
 
-    @NotBlank
     @NotNull
     @Digits(integer=5, fraction=2)
     private BigDecimal amount;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnoreProperties("transactionReceivedList")
-    @JoinColumn(name = "creditor_id", referencedColumnName="id")
+    @JoinColumn(name = "creditor", referencedColumnName="id")
     private User creditor;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnoreProperties("transactionMadeList")
-    @JoinColumn(name = "debtor_id", referencedColumnName="id")
+    @JoinColumn(name = "debtor", referencedColumnName="id")
     private User debtor;
 
     public Transaction() {}
