@@ -1,11 +1,11 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.DTO.JwtAuthenticationResponse;
-import com.paymybuddy.app.DTO.LoginRequest;
-import com.paymybuddy.app.DTO.SignUpRequest;
+import com.paymybuddy.app.dto.JwtAuthenticationResponseDto;
+import com.paymybuddy.app.dto.LoginRequestDto;
+import com.paymybuddy.app.dto.SignUpRequestDto;
 
 public interface IAuthService {
 
-    JwtAuthenticationResponse authenticateUser(LoginRequest loginRequest);
-    Boolean registerUser(SignUpRequest signUpRequest);
+    JwtAuthenticationResponseDto authenticateUser(LoginRequestDto loginRequestDto);
+    Boolean registerUser(SignUpRequestDto signUpRequestDto);
 }

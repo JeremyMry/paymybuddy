@@ -1,10 +1,11 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.DTO.UserProfile;
-import com.paymybuddy.app.DTO.UserSummary;
+import com.paymybuddy.app.dto.UserProfileDto;
+import com.paymybuddy.app.dto.UserSummaryDto;
 import com.paymybuddy.app.exception.ResourceNotFoundException;
 import com.paymybuddy.app.model.Contact;
-import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.repository.ContactRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -24,6 +25,8 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -51,8 +54,10 @@ public class UserServiceTest {
     // get a specific user with his id / return an Users
     @Test
     public void getUserTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "abc", BigDecimal.ZERO);
-
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "abc", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         assertEquals(userService.getUser(1L).getEmail(), "pdoe@testmail.com");
@@ -72,11 +77,13 @@ public class UserServiceTest {
     // get the username availability. If the the username exist, the method return false
     @Test
     public void getUsernameAvailabilityFalseTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
-
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paul", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
-        Assertions.assertFalse(userService.getUsernameAvailability("paulo"));
+        Assertions.assertFalse(userService.getUsernameAvailability("paul"));
     }
 
     // get the username availability. If the the username doesn't exist, the method return true
@@ -88,8 +95,10 @@ public class UserServiceTest {
     // get the email availability. If the the email exist, the method return false
     @Test
     public void getEmailAvailabilityFalseTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
-
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertFalse(userService.getEmailAvailability("pdoe@testmail.com"));
@@ -104,11 +113,13 @@ public class UserServiceTest {
     // get a user profile (username + email) with his email // return an userprofile
     @Test
     public void getUserProfileTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
-        UserProfile userProfile = new UserProfile("paulo", "pdoe@testmail.com");
-
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
+        UserProfileDto userProfile = new UserProfileDto("paulo", "pdoe@testmail.com");
         Assertions.assertNotNull(userService.getUserProfile("pdoe@testmail.com"));
         Assertions.assertEquals(userService.getUserProfile("pdoe@testmail.com").getUsername(), userProfile.getUsername());
         Assertions.assertEquals(userService.getUserProfile("pdoe@testmail.com").getEmail(), userProfile.getEmail());
@@ -128,7 +139,7 @@ public class UserServiceTest {
     // update the password when the user is logged (jwt/@currentuser) / the password is updated
     @Test
     public void updatePasswordTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        User user = new User();
         userRepository.save(user);
 
         userService.updatePassword(UserPrincipal.create(user), "abc");
@@ -140,15 +151,15 @@ public class UserServiceTest {
     @Test
     public void updatePasswordNoCurrentUserTest() {
         Assert.assertThrows(InvalidDataAccessApiUsageException.class, () -> {
-            Users users = new Users();
-            userService.updatePassword(UserPrincipal.create(users), "abc");
+            User user = new User();
+            userService.updatePassword(UserPrincipal.create(user), "abc");
         });
     }
 
     // update the email when the user is logged (jwt/@currentuser) / the method is true, the email is updated
     @Test
     public void updateEmailTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        User user = new User();
         userRepository.save(user);
 
         assertTrue(userService.updateEmail(UserPrincipal.create(user), "jdoe@testmail.com"));
@@ -159,9 +170,15 @@ public class UserServiceTest {
     // the method is true / the contact and user email are update
     @Test
     public void updateUserAndContactEmailTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        User user1 = new User();
         userRepository.save(user);
-        Contact contact = new Contact("pdoe@testmail.com", "paul", 2L);
+        userRepository.save(user1);
+
+        Contact contact = new Contact("pdoe@testmail.com", "paul", user);
         contactRepository.save(contact);
 
         assertTrue(userService.updateEmail(UserPrincipal.create(user), "jdoe@testmail.com"));
@@ -173,18 +190,21 @@ public class UserServiceTest {
     // update the email when the user is logged (jwt/@currentuser) with a new email that's not available / the method is false
     @Test
     public void updateEmailWithNonAvailableEmailTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
-        Users user2 = new Users("john", "doe", "johnny", "jdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        User user1 = new User();
         userRepository.save(user);
-        userRepository.save(user2);
+        userRepository.save(user1);
 
-        assertFalse(userService.updateEmail(UserPrincipal.create(user2), "pdoe@testmail.com"));
+        assertFalse(userService.updateEmail(UserPrincipal.create(user1), "pdoe@testmail.com"));
     }
 
     // update the email when the user isn't logged (jwt/@currentuser) / throw an exception
     @Test
     public void updateEmailWithoutCurrentUser() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        User user = new User();
 
         Assert.assertThrows(InvalidDataAccessApiUsageException.class, () -> userService.updateEmail(UserPrincipal.create(user), "jdoe@testmail.com"));
     }
@@ -192,10 +212,10 @@ public class UserServiceTest {
     // get the current user (logged with a jwt) / create an usersummary (firstName, lastName, username, email, wallet)
     @Test
     public void getCurrentUserTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        User user = new User();
         userRepository.save(user);
 
-        UserSummary userSummary = userService.getCurrentUser(UserPrincipal.create(user));
+        UserSummaryDto userSummary = userService.getCurrentUser(UserPrincipal.create(user));
 
         assertEquals(userSummary.getEmail(), user.getEmail());
         assertEquals(userSummary.getUsername(), user.getUsername());
@@ -205,8 +225,12 @@ public class UserServiceTest {
     @Test
     public void addMoneyToTheWallet() {
         BigDecimal sum = new BigDecimal("150.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
+
 
         when(bankTransferApiService.transferMoneyFromTheBankAccountMock(Mockito.any())).thenReturn(true);
         Boolean bool = userService.addMoneyToTheWallet(UserPrincipal.create(user), sum);
@@ -219,7 +243,10 @@ public class UserServiceTest {
     @Test
     public void addMoneyToTheWalletWithBankTransferApiNegativeAnswerTest() {
         BigDecimal sum = new BigDecimal("150.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         when(bankTransferApiService.transferMoneyFromTheBankAccountMock(Mockito.any())).thenReturn(false);
@@ -234,7 +261,7 @@ public class UserServiceTest {
     @Test
     public void addMoneyToTheWalletSumInferiorTo0() {
         BigDecimal sum = new BigDecimal("-15.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO);
+        User user = new User();
         userRepository.save(user);
 
         when(bankTransferApiService.transferMoneyFromTheBankAccountMock(Mockito.any())).thenReturn(true);
@@ -248,7 +275,10 @@ public class UserServiceTest {
     public void removeMoneyFromTheWalletTest() {
         BigDecimal wallet = new BigDecimal("150.00");
         BigDecimal sum = new BigDecimal("50.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         when(bankTransferApiService.transferMoneyToTheBankAccountMock(Mockito.any())).thenReturn(true);
@@ -263,7 +293,10 @@ public class UserServiceTest {
     public void removeMoneyFromTheWalletWithBankTransferApiNegativeAnswerTest() {
         BigDecimal wallet = new BigDecimal("150.00");
         BigDecimal sum = new BigDecimal("50.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         when(bankTransferApiService.transferMoneyToTheBankAccountMock(Mockito.any())).thenReturn(false);
@@ -276,9 +309,11 @@ public class UserServiceTest {
     // remove money to the wallet a send it via a simulate bank transfer api with a wallet inferior to zero / the method must be false
     @Test
     public void removeMoneyFromTheWalletTestWithWalletInferiorTo0() {
-        BigDecimal wallet = new BigDecimal("15.00");
         BigDecimal sum = new BigDecimal("50.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         when(bankTransferApiService.transferMoneyToTheBankAccountMock(Mockito.any())).thenReturn(true);
@@ -290,9 +325,11 @@ public class UserServiceTest {
     // remove money to the wallet a send it via a simulate bank transfer api with a sum inferior to zero / the method must be false
     @Test
     public void removeMoneyFromTheWalletTestWithSumInferiorTo0() {
-        BigDecimal wallet = new BigDecimal("15.00");
         BigDecimal sum = new BigDecimal("-50.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         when(bankTransferApiService.transferMoneyToTheBankAccountMock(Mockito.any())).thenReturn(true);
@@ -306,24 +343,15 @@ public class UserServiceTest {
     public void updateCreditorWalletTest() {
         BigDecimal amount = new BigDecimal("150.00");
         BigDecimal wallet = new BigDecimal("450.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
-        userService.updateCreditorWallet(amount, user.getId());
+        userService.updateCreditorWallet(amount, user);
 
         assertEquals(userService.getUser(1L).getWallet(), wallet.add(amount));
-    }
-
-
-    // Update the creditor wallet when a transaction is created / case where there is no creditor / throw an exception
-    @Test
-    public void updateCreditorWalletNoCreditorTest() {
-        BigDecimal amount = new BigDecimal("150.00");
-        BigDecimal wallet = new BigDecimal("450.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
-        userRepository.save(user);
-
-        assertThrows(ResourceNotFoundException.class, () -> userService.updateCreditorWallet(amount, 2L));
     }
 
     // Update the debtor wallet when a transaction is created / remove money from the wallet
@@ -331,23 +359,14 @@ public class UserServiceTest {
     public void updateDebtorWalletTest() {
         BigDecimal amount = new BigDecimal("150.00");
         BigDecimal wallet = new BigDecimal("450.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
-        userService.updateDebtorWallet(amount, user.getId());
+        userService.updateDebtorWallet(amount, user);
 
         assertEquals(userService.getUser(1L).getWallet(), wallet.subtract(amount));
-    }
-
-
-    // Update the debtor wallet when a transaction is created / case where there is no debtor / throw an exception
-    @Test
-    public void updateDebtorWalletNoDebtorTest() {
-        BigDecimal amount = new BigDecimal("150.00");
-        BigDecimal wallet = new BigDecimal("450.00");
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "450", wallet);
-        userRepository.save(user);
-
-        assertThrows(ResourceNotFoundException.class, () -> userService.updateDebtorWallet(amount, 2L));
     }
 }

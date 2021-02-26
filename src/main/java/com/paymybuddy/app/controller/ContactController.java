@@ -1,7 +1,7 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.ContactSummary;
-import com.paymybuddy.app.DTO.ContactUpdate;
+import com.paymybuddy.app.dto.ContactSummaryDto;
+import com.paymybuddy.app.dto.ContactUpdateDto;
 import com.paymybuddy.app.security.CurrentUser;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.ContactServiceImpl;
@@ -30,8 +30,8 @@ public class ContactController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<HttpStatus> createContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactSummary contactSummary) {
-        if(contactServiceImpl.createContact(currentUser, contactSummary)) {
+    public ResponseEntity<HttpStatus> createContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactSummaryDto contactSummaryDto) {
+        if(contactServiceImpl.createContact(currentUser, contactSummaryDto)) {
             logger.info("CONTACT CREATED");
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {
@@ -42,8 +42,8 @@ public class ContactController {
     }
 
     @PutMapping("/put")
-    public ResponseEntity<HttpStatus> updateContactFirstName(@CurrentUser UserPrincipal currentUser, @RequestBody ContactUpdate contactUpdate) {
-        contactServiceImpl.updateContactFirstName(currentUser, contactUpdate);
+    public ResponseEntity<HttpStatus> updateContactFirstName(@CurrentUser UserPrincipal currentUser, @RequestBody ContactUpdateDto contactUpdateDto) {
+        contactServiceImpl.updateContactFirstName(currentUser, contactUpdateDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

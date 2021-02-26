@@ -1,8 +1,8 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
 import javax.validation.constraints.NotBlank;
 
-public class LoginRequest {
+public class LoginRequestDto {
 
     @NotBlank
     private String usernameOrEmail;

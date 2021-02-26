@@ -1,11 +1,11 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
-public class JwtAuthenticationResponse {
+public class JwtAuthenticationResponseDto {
 
     private String accessToken;
     private String tokenType = "Bearer";
 
-    public JwtAuthenticationResponse(String accessToken) {
+    public JwtAuthenticationResponseDto(String accessToken) {
         this.accessToken = accessToken;
     }
 

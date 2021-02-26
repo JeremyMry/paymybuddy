@@ -1,5 +1,7 @@
 package com.paymybuddy.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
@@ -8,7 +10,7 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "transaction")
+@JsonIgnoreProperties({"creator", "debtor", "creditor"})
 public class Transaction {
 
     @Id
@@ -24,17 +26,19 @@ public class Transaction {
     @Digits(integer=5, fraction=2)
     private BigDecimal amount;
 
-    @NotBlank
-    @NotNull
-    private Long creditor;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("transactionReceivedList")
+    @JoinColumn(name = "creditor_id", referencedColumnName="id")
+    private User creditor;
 
-    @NotBlank
-    @NotNull
-    private Long debtor;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("transactionMadeList")
+    @JoinColumn(name = "debtor_id", referencedColumnName="id")
+    private User debtor;
 
     public Transaction() {}
 
-    public Transaction(String reference, BigDecimal amount, Long creditor, Long debtor) {
+    public Transaction(String reference, BigDecimal amount, User creditor, User debtor) {
         this.reference = reference;
         this.amount = amount;
         this.creditor = creditor;
@@ -62,17 +66,17 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public Long getCreditor() {
+    public User getCreditor() {
         return creditor;
     }
-    public void setCreditor(Long creditor) {
+    public void setCreditor(User creditor) {
         this.creditor = creditor;
     }
 
-    public Long getDebtor() {
+    public User getDebtor() {
         return debtor;
     }
-    public void setDebtor(Long debtor) {
+    public void setDebtor(User debtor) {
         this.debtor = debtor;
     }
 }

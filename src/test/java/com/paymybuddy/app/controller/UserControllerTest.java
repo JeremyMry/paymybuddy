@@ -1,9 +1,11 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.UserProfile;
-import com.paymybuddy.app.DTO.UserSummary;
+import com.paymybuddy.app.dto.UserProfileDto;
+import com.paymybuddy.app.dto.UserSummaryDto;
 import com.paymybuddy.app.exception.ResourceNotFoundException;
-import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.model.Contact;
+import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.UserServiceImpl;
@@ -22,8 +24,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -46,10 +49,13 @@ public class UserControllerTest {
     // test the find user controller / must return an User profile and an HttpStatus.OK
     @Test
     public void findUserTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
-        UserProfile userProfile = new UserProfile("bobby", "bdoe@testmail.com");
+        UserProfileDto userProfile = new UserProfileDto("bobby", "bdoe@testmail.com");
 
         Assertions.assertEquals(Objects.requireNonNull(userController.getUserProfile("bdoe@testmail.com").getBody()).toString(), userProfile.toString());
         Assertions.assertEquals(userController.getUserProfile("bdoe@testmail.com").getStatusCode(), HttpStatus.OK);
@@ -70,9 +76,13 @@ public class UserControllerTest {
     // test the current user controller / must return an UserSummary and an HttpStatus.OK
     @Test
     public void getCurrentUserTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", null);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        UserSummary userSummary = new UserSummary(user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getWallet());
+
+        UserSummaryDto userSummary = new UserSummaryDto(user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getWallet());
 
         Assertions.assertEquals(Objects.requireNonNull(userController.getCurrentUser(UserPrincipal.create(user)).getBody()).toString(), userSummary.toString());
         Assertions.assertEquals(userController.getCurrentUser(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
@@ -92,7 +102,10 @@ public class UserControllerTest {
     // test the update email controller / must return an HttpStatus.OK and update the email
     @Test
     public void updateEmailTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", null);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userController.updateEmail(UserPrincipal.create(user), "bodoe@testmail.com").getStatusCode(), HttpStatus.OK);
@@ -103,7 +116,10 @@ public class UserControllerTest {
     // test the update email controller with incorrect value / must return an HttpStatus.BAD_REQUEST
     @Test
     public void updateEmailBadRequestTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", null);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userController.updateEmail(UserPrincipal.create(user), "bdoe@testmail.com").getStatusCode(), HttpStatus.BAD_REQUEST);
@@ -124,7 +140,10 @@ public class UserControllerTest {
     // test the update password controller / must update the pasword and return an HttpStatus.OK
     @Test
     public void updatePasswordTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", null);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userController.updatePassword(UserPrincipal.create(user), "bvc"), new ResponseEntity<>(HttpStatus.OK));
@@ -146,7 +165,10 @@ public class UserControllerTest {
     // test the add money to the wallet controller / must return an HttpStatus.OK and update the wallet
     @Test
     public void addMoneyToTheWalletTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userController.addMoneyToTheWallet(UserPrincipal.create(user), BigDecimal.valueOf(10.01)), new ResponseEntity<>(HttpStatus.OK));
@@ -156,11 +178,14 @@ public class UserControllerTest {
     // test the add money to the wallet controller with incorrect values / must return an HttpStatus.BAD_REQUEST
     @Test
     public void addMoneyToTheWalletBadCredentialsTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.valueOf(1.01));
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.valueOf(10.01), contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userController.addMoneyToTheWallet(UserPrincipal.create(user), BigDecimal.valueOf(-1.01)), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
-        Assertions.assertEquals(userService.getUser(1L).getWallet(), BigDecimal.valueOf(1.01));
+        Assertions.assertEquals(userService.getUser(1L).getWallet(), BigDecimal.valueOf(10.01));
     }
 
     // test the add money to the wallet controller without current user / must return an HttpStatus.UNAUTHORIZED
@@ -178,7 +203,10 @@ public class UserControllerTest {
     // test the remove money to the wallet controller / must return an HttpStatus.OK and update the wallet
     @Test
     public void removeMoneyToTheWalletTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.valueOf(150));
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.valueOf(150), contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userController.removeMoneyFromTheWallet(UserPrincipal.create(user), BigDecimal.valueOf(10.01)), new ResponseEntity<>(HttpStatus.OK));
@@ -188,7 +216,10 @@ public class UserControllerTest {
     // test the remove money to the wallet controller with incorrect values / must return an HttpStatus.BAD_REQUEST
     @Test
     public void removeMoneyToTheWalletBadCredentialsTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.valueOf(1.01));
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.valueOf(1.01), contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userController.removeMoneyFromTheWallet(UserPrincipal.create(user), BigDecimal.valueOf(15.01)), new ResponseEntity<>(HttpStatus.BAD_REQUEST));

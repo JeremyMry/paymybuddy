@@ -1,7 +1,7 @@
 package com.paymybuddy.app.security;
 
-import com.paymybuddy.app.DTO.LoginRequest;
-import com.paymybuddy.app.DTO.SignUpRequest;
+import com.paymybuddy.app.dto.LoginRequestDto;
+import com.paymybuddy.app.dto.SignUpRequestDto;
 import com.paymybuddy.app.service.impl.AuthServiceImpl;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,20 +40,20 @@ public class JwtTokenProviderTest {
     // test the generateToken method / must return a String containing the jwt / as the jwt is "random" we just test that the method is not null
     @Test
     public void generateTokenTest() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("johnny");
+        signUpRequestDto.setEmail("johndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
 
-        authService.registerUser(signUpRequest);
+        authService.registerUser(signUpRequestDto);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("johnny");
-        loginRequest.setPassword("pwd");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setUsernameOrEmail("johnny");
+        loginRequestDto.setPassword("pwd");
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsernameOrEmail(), loginRequestDto.getPassword()));
 
         Assertions.assertNotNull(jwtTokenProvider.generateToken(authentication));
     }
@@ -61,20 +61,20 @@ public class JwtTokenProviderTest {
     // test the getUserIdFromJwt method / The method must return a long corresponding to the user id
     @Test
     public void getUserIdFromJwtTest() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("johnny");
+        signUpRequestDto.setEmail("johndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
 
-        authService.registerUser(signUpRequest);
+        authService.registerUser(signUpRequestDto);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("johnny");
-        loginRequest.setPassword("pwd");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setUsernameOrEmail("johnny");
+        loginRequestDto.setPassword("pwd");
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsernameOrEmail(), loginRequestDto.getPassword()));
 
         Assertions.assertEquals(jwtTokenProvider.getUserIdFromJWT(jwtTokenProvider.generateToken(authentication)).longValue(), 1L);
     }
@@ -82,19 +82,19 @@ public class JwtTokenProviderTest {
     //test the validate token method / must return true
     @Test
     public void validateTokenTest() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
-        authService.registerUser(signUpRequest);
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("johnny");
+        signUpRequestDto.setEmail("johndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
+        authService.registerUser(signUpRequestDto);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("johnny");
-        loginRequest.setPassword("pwd");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setUsernameOrEmail("johnny");
+        loginRequestDto.setPassword("pwd");
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsernameOrEmail(), loginRequestDto.getPassword()));
 
         String token = jwtTokenProvider.generateToken(authentication);
 
@@ -110,21 +110,21 @@ public class JwtTokenProviderTest {
     // test the validate token method with expired token / must return false
     @Test
     public void validateTokenExpiredTokenTest() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
-        authService.registerUser(signUpRequest);
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("johnny");
+        signUpRequestDto.setEmail("johndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
+        authService.registerUser(signUpRequestDto);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("johnny");
-        loginRequest.setPassword("pwd");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setUsernameOrEmail("johnny");
+        loginRequestDto.setPassword("pwd");
 
         when(jwtTokenProviders.generateToken(Mockito.any())).thenReturn(Jwts.builder().setSubject(String.valueOf(1L)).setIssuedAt(new Date()).setExpiration(new Date()).signWith(SignatureAlgorithm.HS512, "bonobozer").compact());
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsernameOrEmail(), loginRequestDto.getPassword()));
         String token = jwtTokenProviders.generateToken(authentication);
 
         assertFalse(jwtTokenProvider.validateToken(token));
@@ -133,21 +133,21 @@ public class JwtTokenProviderTest {
     // test the validate token method with invalid secret key / must return false
     @Test
     public void validateTokenInvalidSignatureTest() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
-        authService.registerUser(signUpRequest);
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("johnny");
+        signUpRequestDto.setEmail("johndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
+        authService.registerUser(signUpRequestDto);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("johnny");
-        loginRequest.setPassword("pwd");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setUsernameOrEmail("johnny");
+        loginRequestDto.setPassword("pwd");
 
         when(jwtTokenProviders.generateToken(Mockito.any())).thenReturn(Jwts.builder().setSubject(String.valueOf(1L)).setIssuedAt(new Date()).setExpiration(new Date()).signWith(SignatureAlgorithm.HS512, "onobozer").compact());
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsernameOrEmail(), loginRequestDto.getPassword()));
         String token = jwtTokenProviders.generateToken(authentication);
 
         assertFalse(jwtTokenProvider.validateToken(token));

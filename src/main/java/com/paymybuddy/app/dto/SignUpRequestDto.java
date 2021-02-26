@@ -1,10 +1,10 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-public class SignUpRequest {
+public class SignUpRequestDto {
 
     @NotBlank
     @Size(min = 4, max = 40)

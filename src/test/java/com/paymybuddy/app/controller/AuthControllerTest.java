@@ -1,7 +1,7 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.LoginRequest;
-import com.paymybuddy.app.DTO.SignUpRequest;
+import com.paymybuddy.app.dto.LoginRequestDto;
+import com.paymybuddy.app.dto.SignUpRequestDto;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,61 +24,61 @@ public class AuthControllerTest {
     // test the signup controller / must return the HttpStatus.ACCEPTED
     @Test
     public void signUpTest() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("johnny");
+        signUpRequestDto.setEmail("johndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
 
-        Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.ACCEPTED));
+        Assertions.assertEquals(authController.registerUser(signUpRequestDto), new ResponseEntity<>(HttpStatus.ACCEPTED));
     }
 
     // test the signup controller with an already existing email / must return the HttpStatus.BAD_REQUEST
     @Test
     public void signUpTestWithAlreadyExistingEmail() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("joohnny");
-        signUpRequest.setEmail("johndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("joohnny");
+        signUpRequestDto.setEmail("johndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
 
-        Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+        Assertions.assertEquals(authController.registerUser(signUpRequestDto), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
     // test the signup controller with an already existing username / must return the HttpStatus.BAD_REQUEST
     @Test
     public void signUpTestWithAlreadyExistingUsername() {
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setFirstName("john");
-        signUpRequest.setLastName("doe");
-        signUpRequest.setUsername("johnny");
-        signUpRequest.setEmail("joohndoe@testmail.com");
-        signUpRequest.setPassword("pwd");
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto();
+        signUpRequestDto.setFirstName("john");
+        signUpRequestDto.setLastName("doe");
+        signUpRequestDto.setUsername("johnny");
+        signUpRequestDto.setEmail("joohndoe@testmail.com");
+        signUpRequestDto.setPassword("pwd");
 
-        Assertions.assertEquals(authController.registerUser(signUpRequest), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+        Assertions.assertEquals(authController.registerUser(signUpRequestDto), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
     // test the signin controller / must return the HttpStatus.ACCEPTED
     @Test
     public void signinTest() {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("johnny");
-        loginRequest.setPassword("pwd");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setUsernameOrEmail("johnny");
+        loginRequestDto.setPassword("pwd");
 
 
-        Assertions.assertEquals(authController.authenticateUser(loginRequest).getStatusCode(), HttpStatus.ACCEPTED);
+        Assertions.assertEquals(authController.authenticateUser(loginRequestDto).getStatusCode(), HttpStatus.ACCEPTED);
     }
 
     // test the signin controller with unknown credentials / must throw an exception
     @Test
     public void signInWithUnregisteredCredentialsTest() {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setPassword("abyc");
-        loginRequest.setUsernameOrEmail("joey");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setPassword("abyc");
+        loginRequestDto.setUsernameOrEmail("joey");
 
-        Exception exception = Assert.assertThrows(BadCredentialsException.class, () -> authController.authenticateUser(loginRequest));
+        Exception exception = Assert.assertThrows(BadCredentialsException.class, () -> authController.authenticateUser(loginRequestDto));
 
         String expectedMessage = "Bad credentials";
         String actualMessage = exception.getMessage();

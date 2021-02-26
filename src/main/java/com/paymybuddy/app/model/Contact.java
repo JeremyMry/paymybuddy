@@ -1,12 +1,13 @@
 package com.paymybuddy.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name = "contact")
+@JsonIgnoreProperties({"creator", "debtor", "creditor"})
 public class Contact {
 
     @Id
@@ -21,14 +22,13 @@ public class Contact {
     @Size(max = 25)
     private String firstName;
 
-    @NotBlank
-    @NotNull
-    private Long creator;
-
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id",referencedColumnName="id")
+    private User creator;
 
     public Contact() {}
 
-    public Contact(String email, String firstName, Long creator) {
+    public Contact(String email, String firstName, User creator) {
         this.email = email;
         this.firstName = firstName;
         this.creator = creator;
@@ -43,7 +43,7 @@ public class Contact {
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public Long getCreator() { return creator; }
-    public void setCreator(Long creator) { this.creator = creator; }
+    public User getCreator() { return creator; }
+    public void setCreator(User creator) { this.creator = creator; }
 }
 

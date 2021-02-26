@@ -1,10 +1,10 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
-public class ContactUpdate {
+public class ContactUpdateDto {
     private Long id;
     private String newFirstName;
 
-    public ContactUpdate(Long id, String newFirstName) {
+    public ContactUpdateDto(Long id, String newFirstName) {
         this.id = id;
         this.newFirstName = newFirstName;
     }

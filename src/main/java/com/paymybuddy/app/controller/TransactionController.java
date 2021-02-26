@@ -1,6 +1,6 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.TransactionProceed;
+import com.paymybuddy.app.dto.TransactionProceedDto;
 import com.paymybuddy.app.security.CurrentUser;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.TransactionServiceImpl;
@@ -35,8 +35,8 @@ public class TransactionController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<HttpStatus> createTransaction(@CurrentUser UserPrincipal currentUser, @RequestBody TransactionProceed transactionProceed) {
-        if(transactionService.transactionComputation(currentUser, transactionProceed)) {
+    public ResponseEntity<HttpStatus> createTransaction(@CurrentUser UserPrincipal currentUser, @RequestBody TransactionProceedDto transactionProceedDto) {
+        if(transactionService.transactionComputation(currentUser, transactionProceedDto)) {
             logger.info("TRANSACTION CREATED");
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {

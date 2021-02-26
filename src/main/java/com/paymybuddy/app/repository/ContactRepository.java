@@ -12,9 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Long> {
 
-    @Query("FROM Contact c where c.creator = :userId")
-    List<Contact> findAllByCurrentUser(@Param("userId") Long userId);
-
     Optional<Contact> findByEmail(String email);
 
     Boolean existsByEmail(String email);

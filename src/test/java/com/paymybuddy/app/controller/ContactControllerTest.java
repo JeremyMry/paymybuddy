@@ -1,10 +1,11 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.ContactSummary;
-import com.paymybuddy.app.DTO.ContactUpdate;
+import com.paymybuddy.app.dto.ContactSummaryDto;
+import com.paymybuddy.app.dto.ContactUpdateDto;
 import com.paymybuddy.app.exception.ResourceNotFoundException;
 import com.paymybuddy.app.model.Contact;
-import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.repository.ContactRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -24,15 +25,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 @SpringBootTest
 public class ContactControllerTest {
-
     @Autowired
     UserRepository userRepository;
 
@@ -51,11 +52,15 @@ public class ContactControllerTest {
     // test the create contact controller / must return an HttpStatus.CREATED
     @Test
     public void createContactTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        User user2 = new User("john", "doe", "johnny", "johndoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        Users user2 = new Users("john", "doe", "johnny", "johndoe@testmail.com", "pwd", BigDecimal.ZERO);
         userRepository.save(user2);
-        ContactSummary contactSummary = new ContactSummary("johnny", "johndoe@testmail.com");
+
+        ContactSummaryDto contactSummary = new ContactSummaryDto("johnny", "johndoe@testmail.com");
 
         Assertions.assertEquals(contactController.createContact(UserPrincipal.create(user), contactSummary), new ResponseEntity<>(HttpStatus.CREATED));
     }
@@ -63,9 +68,13 @@ public class ContactControllerTest {
     // test the create contact controller  with unknown email / must return an HttpStatus.BAD_REQUEST
     @Test
     public void createContactUnknownEmail() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        ContactSummary contactSummary = new ContactSummary("johnny", "johndoe@testmail.com");
+
+        ContactSummaryDto contactSummary = new ContactSummaryDto("johnny", "johndoe@testmail.com");
 
         Assertions.assertEquals(contactController.createContact(UserPrincipal.create(user), contactSummary), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
@@ -86,24 +95,36 @@ public class ContactControllerTest {
     // test the update contact controller / must update the contact and return an HttpStatus.OK
     @Test
     public void updateContactTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        Contact contact = new Contact("jdoe@testmail.com", "johnny", 1L);
-        contactRepository.save(contact);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "john");
 
+        Contact contact = new Contact("jdoe@testmail.com", "johnny", user);
+        contactRepository.save(contact);
+
+        user.getContactList().add(contact);
+        userRepository.save(user);
+
+        ContactUpdateDto contactUpdate = new ContactUpdateDto(1L, "john");
         ResponseEntity<HttpStatus> responseEntity = contactController.updateContactFirstName(UserPrincipal.create(user), contactUpdate);
 
         Assertions.assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
         Assertions.assertEquals(contactService.getContact(1L).getFirstName(), "john");
+        Assertions.assertEquals(userRepository.findById(1L).get().getContactList().get(0).getFirstName(), "john");
     }
 
     // test the update contact controller with an unknown / throw an exception
     @Test
     public void updateUnknownContactTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "john");
+        ContactUpdateDto contactUpdate = new ContactUpdateDto(1L, "john");
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> contactController.updateContactFirstName(UserPrincipal.create(user), contactUpdate));
 
@@ -128,19 +149,31 @@ public class ContactControllerTest {
     // test the delete contact controller / must delete the contact and return an HttpStatus.OK
     @Test
     public void deleteContactTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        Contact contact = new Contact("jdoe@testmail.com", "johnny", 1L);
+
+        Contact contact = new Contact("jdoe@testmail.com", "johnny", user);
         contactRepository.save(contact);
+
+        user.getContactList().add(contact);
+        userRepository.save(user);
 
         Assertions.assertEquals(contactController.deleteContact(UserPrincipal.create(user), 1L), new ResponseEntity<>(HttpStatus.OK));
         Assertions.assertTrue(contactService.getEmailAvailability("jdoe@testmail.com"));
+        Assertions.assertTrue(userRepository.findById(1L).get().getContactList().isEmpty());
     }
 
     // test the delete contact controller when there is no contact to delete / must throw an exception
     @Test
     public void deleteContactWhenThereIsNoContactToDeleteTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> contactController.deleteContact(UserPrincipal.create(user), 1L));
@@ -166,12 +199,20 @@ public class ContactControllerTest {
     // test the get all contacts controller / must return a List of contact and an HttpStatus.OK
     @Test
     public void getAllContactTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        Contact contact = new Contact("jdoe@testmail.com", "johnny", 1L);
+
+        Contact contact = new Contact("jdoe@testmail.com", "johnny", user);
         contactRepository.save(contact);
-        Contact contact1 = new Contact("pdoe@testmail.com", "paul", 1L);
+        Contact contact1 = new Contact("pdoe@testmail.com", "paul", user);
         contactRepository.save(contact1);
+
+        user.getContactList().add(contact);
+        user.getContactList().add(contact1);
+        userRepository.save(user);
 
         Assertions.assertEquals(contactController.getAllContacts(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
         Assertions.assertEquals(Objects.requireNonNull(contactController.getAllContacts(UserPrincipal.create(user)).getBody()).size(), 2);
@@ -180,7 +221,11 @@ public class ContactControllerTest {
     // test the get all contacts controller when there is no contact / must return an empty List of contact and an HttpStatus.OK
     @Test
     public void getAllContactWhenThereIsNoneTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(contactController.getAllContacts(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);

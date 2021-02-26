@@ -1,10 +1,11 @@
 package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.model.Contact;
-import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.exception.ResourceNotFoundException;
-import com.paymybuddy.app.DTO.ContactSummary;
-import com.paymybuddy.app.DTO.ContactUpdate;
+import com.paymybuddy.app.dto.ContactSummaryDto;
+import com.paymybuddy.app.dto.ContactUpdateDto;
 import com.paymybuddy.app.repository.ContactRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -17,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +39,12 @@ public class ContactServiceTest {
     // get a specific contact with his id / return a contact
     @Test
     public void getContactTest() {
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "p.b@testmail.com", "eee", "450", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        userRepository.save(user);
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user);
         contactRepository.save(contact);
 
         Assertions.assertEquals(contactService.getContact(1L).getEmail(), "jdoe@testmail.com");
@@ -57,15 +65,24 @@ public class ContactServiceTest {
     // get all the contact of the current user / return a List of contact
     @Test
     public void getAllContactsTest() {
-        Users user = new Users("paul", "doe", "p.b@testmail.com", "eee", "450", BigDecimal.ZERO);
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
-        Contact contact2 = new Contact("pdoe@testmail.com", "Paul", 1L);
-        Contact contact3 = new Contact("pdoe@testmail.com", "Paul", 2L);
-
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paul", "p.b@testmail.com", "ee", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        User user1 = new User("paulo", "doe", "paulo", "pdoe.b@testmail.com", "ee", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
+        userRepository.save(user1);
+
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user);
+        Contact contact2 = new Contact("pdoe@testmail.com", "Paul", user);
+        Contact contact3 = new Contact("pdoe@testmail.com", "Paul", user1);
         contactRepository.save(contact);
         contactRepository.save(contact2);
         contactRepository.save(contact3);
+
+        user.getContactList().add(contact);
+        user.getContactList().add(contact2);
+        userRepository.save(user);
 
         Assertions.assertEquals(contactService.getAllContacts(UserPrincipal.create(user)).size(), 2);
     }
@@ -73,24 +90,8 @@ public class ContactServiceTest {
     // get all the contact of the current user when there is none / return an empty List
     @Test
     public void getAllContactsWhenThereIsNoneTest() {
-        Users user = new Users("paul", "doe", "p.b@testmail.com", "eee", "450", BigDecimal.ZERO);
-        Contact contact = new Contact("pdoe@testmail.com", "Paul", 2L);
-
+        User user = new User();
         userRepository.save(user);
-        contactRepository.save(contact);
-
-        Assertions.assertEquals(contactService.getAllContacts(UserPrincipal.create(user)).size(), 0);
-    }
-
-    // get all the contact of the current user when there is no current user / return an empty List
-    @Test
-    public void getAllContactsWhenThereIsNoCurrentUserTest() {
-        Users user = new Users("paul", "doe", "p.b@testmail.com", "eee", "450", BigDecimal.ZERO);
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
-        Contact contact2 = new Contact("pdoe@testmail.com", "Paul", 1L);
-
-        contactRepository.save(contact);
-        contactRepository.save(contact2);
 
         Assertions.assertEquals(contactService.getAllContacts(UserPrincipal.create(user)).size(), 0);
     }
@@ -98,36 +99,29 @@ public class ContactServiceTest {
     // create a contact with the id of the current user / return true
     @Test
     public void createContactTest() {
-        Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        Users user2 = new Users("john", "doe", "johnny", "johndoe@testmail.com", "450", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paul", "p.b@testmail.com", "ee", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        User user2 = new User("paul", "doe", "paulo", "pdoe@testmail.com", "ee", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
         userRepository.save(user2);
 
-        Boolean bool = contactService.createContact(UserPrincipal.create(user), new ContactSummary("john", "johndoe@testmail.com"));
+        Boolean bool = contactService.createContact(UserPrincipal.create(user), new ContactSummaryDto("paulo", "pdoe@testmail.com"));
 
         Assertions.assertTrue(bool);
-        Assertions.assertEquals(contactService.getContact(1L).getEmail(), "johndoe@testmail.com");
-        assertEquals((long) contactService.getContact(1L).getCreator(), 1L);
-        Assertions.assertEquals(contactService.getContact(1L).getFirstName(), "john");
+        Assertions.assertEquals(contactService.getContact(1L).getEmail(), "pdoe@testmail.com");
+        Assertions.assertEquals(contactService.getContact(1L).getFirstName(), "paulo");
+        Assertions.assertEquals(contactService.getAllContacts(UserPrincipal.create(userRepository.findById(1L).get())).size(), 1);
     }
 
     // create a contact with the id of the current user but the email doesn't exist in db / return false
     @Test
     public void createContactIncorrectMailTest() {
-        Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
+        User user = new User();
         userRepository.save(user);
 
-        Boolean bool = contactService.createContact(UserPrincipal.create(user), new ContactSummary("john", "johndoe@testmail.com"));
-
-        Assertions.assertFalse(bool);
-    }
-
-    // create a contact without current user / return false
-    @Test
-    public void createContactWithoutCurrentUserTest() {
-        Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-
-        Boolean bool = contactService.createContact(UserPrincipal.create(user), new ContactSummary("john", "johndoe@testmail.com"));
+        Boolean bool = contactService.createContact(UserPrincipal.create(user), new ContactSummaryDto("john", "johndoe@testmail.com"));
 
         Assertions.assertFalse(bool);
     }
@@ -135,13 +129,16 @@ public class ContactServiceTest {
     // update the contact firstName
     @Test
     public void updateContactFirstNameTest() {
-        Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "johnny");
-        Contact contact = new Contact("jdoe@testmail.com", "john", 1L);
-
+        User user = new User();
         userRepository.save(user);
+
+        Contact contact = new Contact("jdoe@testmail.com", "john", user);
         contactRepository.save(contact);
 
+        user.getContactList().add(contact);
+        userRepository.save(user);
+
+        ContactUpdateDto contactUpdate = new ContactUpdateDto(1L, "johnny");
         contactService.updateContactFirstName(UserPrincipal.create(user), contactUpdate);
 
         assertEquals(contactService.getContact(1L).getFirstName(), "johnny");
@@ -150,15 +147,17 @@ public class ContactServiceTest {
     // update the contact firstName but with the wrong current user creator
     @Test
     public void updateContactFirstNameThatIsNotPresentTest() {
-        Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "johnny");
-        Contact contact = new Contact("jdoe@testmail.com", "john", 2L);
-        Contact contact2 = new Contact("jodoe@testmail.com", "john", 1L);
-
+        User user = new User();
+        User user1 = new User();
         userRepository.save(user);
+        userRepository.save(user1);
+
+        Contact contact = new Contact("jdoe@testmail.com", "john", user1);
+        Contact contact2 = new Contact("jodoe@testmail.com", "john", user);
         contactRepository.save(contact);
         contactRepository.save(contact2);
 
+        ContactUpdateDto contactUpdate = new ContactUpdateDto(1L, "johnny");
         contactService.updateContactFirstName(UserPrincipal.create(user), contactUpdate);
 
         assertEquals(contactService.getContact(1L).getFirstName(), "john");
@@ -167,8 +166,8 @@ public class ContactServiceTest {
     // update the contact firstName but without current user link to the contact / throw an exception
     @Test
     public void updateContactFirstNameWithoutContactTest() {
-        Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "johnny");
+        User user = new User();
+        ContactUpdateDto contactUpdate = new ContactUpdateDto(1L, "johnny");
         userRepository.save(user);
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> contactService.updateContactFirstName(UserPrincipal.create(user), contactUpdate));
@@ -182,15 +181,17 @@ public class ContactServiceTest {
     // update the contact firstName when there is none created by the current user
     @Test
     public void updateContactFirstnameWithEmptyContactListTest() {
-        Users user = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 2L);
-        Contact contact2 = new Contact("pdoe@testmail.com", "Paul", 2L);
-        ContactUpdate contactUpdate = new ContactUpdate(1L, "johnny");
-
+        User user = new User();
+        User user1 = new User();
         userRepository.save(user);
+        userRepository.save(user1);
+
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user1);
+        Contact contact2 = new Contact("pdoe@testmail.com", "Paul", user1);
         contactRepository.save(contact);
         contactRepository.save(contact2);
 
+        ContactUpdateDto contactUpdate = new ContactUpdateDto(1L, "johnny");
         contactService.updateContactFirstName(UserPrincipal.create(user), contactUpdate);
 
         assertEquals(contactService.getContact(1L).getFirstName(), "Joey");
@@ -199,7 +200,10 @@ public class ContactServiceTest {
     // update the contact email
     @Test
     public void updateEmailTest() {
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
+        User user = new User();
+        userRepository.save(user);
+
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user);
         contactRepository.save(contact);
 
         contactService.updateEmail("jodoe@testmail.com", "jdoe@testmail.com");
@@ -210,7 +214,10 @@ public class ContactServiceTest {
     // update the contact email with incorrect email / throw an exception
     @Test
     public void updateEmailIncorrectOldEmailTest() {
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
+        User user = new User();
+        userRepository.save(user);
+
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user);
         contactRepository.save(contact);
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> contactService.updateEmail("jodoe@testmail.com", "jodoe@testmail.com"));
@@ -224,12 +231,16 @@ public class ContactServiceTest {
     // delete a contact with his id
     @Test
     public void deleteContactTest() {
-        Users users = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 1L);
+        User user = new User();
+        userRepository.save(user);
 
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user);
         contactRepository.save(contact);
-        userRepository.save(users);
-        contactService.deleteContact(UserPrincipal.create(users), 1L);
+
+        user.getContactList().add(contact);
+        userRepository.save(user);
+
+        contactService.deleteContact(UserPrincipal.create(user), 1L);
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> contactService.getContact(1L));
 
@@ -242,7 +253,7 @@ public class ContactServiceTest {
     // delete a contact doesn't exist / throw an exception
     @Test
     public void deleteContactThatDoesntExistTest() {
-        Users users = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
+        User users = new User();
         userRepository.save(users);
 
         Exception exception = Assert.assertThrows(ResourceNotFoundException.class, () -> contactService.deleteContact(UserPrincipal.create(users), 1L));
@@ -256,13 +267,19 @@ public class ContactServiceTest {
     // delete a contact that's not created by the current user
     @Test
     public void deleteContactThatIsNotCreatedByTheCurrentUserTest() {
-        Users users = new Users("joe", "doe", "joey", "jdoe@testmail.com", "450", BigDecimal.ZERO);
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 2L);
-        Contact contact1 = new Contact("jdoe@testmail.com", "Joey", 1L);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User users = new User("paul", "doe", "paul", "p.b@testmail.com", "ee", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        User user1 = new User();
+        userRepository.save(users);
+        userRepository.save(user1);
 
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user1);
+        Contact contact1 = new Contact("jdoe@testmail.com", "Joey", users);
         contactRepository.save(contact);
         contactRepository.save(contact1);
-        userRepository.save(users);
+
         contactService.deleteContact(UserPrincipal.create(users), 1L);
 
         assertEquals(contactService.getContact(1L).getFirstName(), "Joey");
@@ -277,8 +294,9 @@ public class ContactServiceTest {
     // get the availability of an email / return false if the email isn't available
     @Test
     public void getEmailAvailabilityUnavailableTest() {
-        Contact contact = new Contact("jdoe@testmail.com", "Joey", 2L);
-
+        User user = new User();
+        userRepository.save(user);
+        Contact contact = new Contact("jdoe@testmail.com", "Joey", user);
         contactRepository.save(contact);
 
         Assertions.assertFalse(contactService.getEmailAvailability("jdoe@testmail.com"));

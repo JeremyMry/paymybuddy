@@ -1,11 +1,11 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
-public class ContactSummary {
+public class ContactSummaryDto {
 
     private String firstName;
     private String email;
 
-    public ContactSummary(String firstName, String email) {
+    public ContactSummaryDto(String firstName, String email) {
         this.firstName = firstName;
         this.email = email;
     }

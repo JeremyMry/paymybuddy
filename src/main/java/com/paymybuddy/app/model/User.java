@@ -1,8 +1,14 @@
 package com.paymybuddy.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
@@ -13,7 +19,7 @@ import java.math.BigDecimal;
                 "email"
         })
 })
-public class Users {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,15 +51,46 @@ public class Users {
     @Digits(integer=5, fraction=2)
     private BigDecimal wallet;
 
-    public Users() {}
+    @OneToMany(targetEntity = Contact.class, cascade = CascadeType.REMOVE, mappedBy="creator")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnoreProperties("creator")
+    private List<Contact> contactList = new ArrayList<>();
 
-    public Users(String firstName, String lastName, String username, String email, String password, BigDecimal wallet) {
+    @OneToMany(targetEntity = Transaction.class, cascade = CascadeType.REMOVE, mappedBy="debtor")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnoreProperties("debtor")
+    private List<Transaction> transactionMadeList = new ArrayList<>();
+
+    @OneToMany(targetEntity = Transaction.class, cascade = CascadeType.REMOVE, mappedBy="creditor")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnoreProperties("creditor")
+    private List<Transaction> transactionReceivedList = new ArrayList<>();
+
+    public User() {}
+
+    public User(String firstName, String lastName, String username, String email, String password, BigDecimal wallet, List<Contact> contactList, List<Transaction> transactionMadeList, List<Transaction> transactionReceivedList) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
         this.wallet = wallet;
+        this.contactList = contactList;
+        this.transactionMadeList = transactionMadeList;
+        this.transactionReceivedList = transactionReceivedList;
+    }
+
+    public User(Long id, String firstName, String lastName, String username, String email, String password, BigDecimal wallet, List<Contact> contactList, List<Transaction> transactionMadeList, List<Transaction> transactionReceivedList) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.wallet = wallet;
+        this.contactList = contactList;
+        this.transactionMadeList = transactionMadeList;
+        this.transactionReceivedList = transactionReceivedList;
     }
 
     public Long getId() {
@@ -98,14 +135,18 @@ public class Users {
         this.password = password;
     }
 
-
-
     public BigDecimal getWallet() {
         return wallet;
     }
     public void setWallet(BigDecimal wallet) {
         this.wallet = wallet;
     }
+
+    public List<Contact> getContactList() { return contactList; }
+
+    public List<Transaction> getTransactionMadeList() { return transactionMadeList; }
+
+    public List<Transaction> getTransactionReceivedList() { return transactionReceivedList; }
 
     @Override
     public String toString() {

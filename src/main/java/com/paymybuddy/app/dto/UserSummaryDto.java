@@ -1,8 +1,8 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
 import java.math.BigDecimal;
 
-public class UserSummary {
+public class UserSummaryDto {
     private String username;
     private String firstName;
     private String lastName;
@@ -10,7 +10,7 @@ public class UserSummary {
     private BigDecimal wallet;
 
 
-    public UserSummary(String username, String firstName, String lastName, String email, BigDecimal wallet) {
+    public UserSummaryDto(String username, String firstName, String lastName, String email, BigDecimal wallet) {
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;

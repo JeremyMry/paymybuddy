@@ -1,9 +1,11 @@
 package com.paymybuddy.app.service.impl;
 
 import com.paymybuddy.app.exception.ResourceNotFoundException;
-import com.paymybuddy.app.model.Users;
-import com.paymybuddy.app.DTO.UserProfile;
-import com.paymybuddy.app.DTO.UserSummary;
+import com.paymybuddy.app.model.Contact;
+import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.model.User;
+import com.paymybuddy.app.dto.UserProfileDto;
+import com.paymybuddy.app.dto.UserSummaryDto;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.IUserService;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 
-@Transactional
 @Service
 public class UserServiceImpl implements IUserService {
 
@@ -35,19 +36,19 @@ public class UserServiceImpl implements IUserService {
     Logger logger;
 
     @Override
-    public Users getUser(Long userId) {
+    public User getUser(Long userId) {
         return userRepository.findById(userId)
                              .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
 
     @Override
-    public Users getUserByEmail(String userEmail) {
+    public User getUserByEmail(String userEmail) {
         return userRepository.findByEmail(userEmail)
                              .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
     }
     @Override
-    public UserSummary getCurrentUser(UserPrincipal currentUser) {
-        return new UserSummary(currentUser.getUsername(), currentUser.getFirstName(), currentUser.getLastName(), currentUser.getEmail(), currentUser.getWallet());
+    public UserSummaryDto getCurrentUser(UserPrincipal currentUser) {
+        return new UserSummaryDto(currentUser.getUsername(), currentUser.getFirstName(), currentUser.getLastName(), currentUser.getEmail(), currentUser.getWallet());
     }
 
     @Override
@@ -59,14 +60,15 @@ public class UserServiceImpl implements IUserService {
     public Boolean getEmailAvailability(String email) { return !userRepository.existsByEmail(email); }
 
     @Override
-    public UserProfile getUserProfile(String email) {
-        Users user = getUserByEmail(email);
-        return new UserProfile(user.getUsername(), user.getEmail());
+    public UserProfileDto getUserProfile(String email) {
+        User user = getUserByEmail(email);
+        return new UserProfileDto(user.getUsername(), user.getEmail());
     }
 
+    @Transactional
     @Override
     public Boolean addMoneyToTheWallet(UserPrincipal currentUser, BigDecimal sum) {
-        Users user = getUser(currentUser.getId());
+        User user = getUser(currentUser.getId());
         if(sum.compareTo(BigDecimal.ZERO) <= 0.00) {
             logger.error("THE AMOUNT YOU WANT TO TRANSFER CANNOT BE INFERIOR TO 0");
             return false;
@@ -81,9 +83,10 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    @Transactional
     @Override
     public Boolean removeMoneyFromTheWallet(UserPrincipal currentUser, BigDecimal sum) {
-        Users user = getUser(currentUser.getId());
+        User user = getUser(currentUser.getId());
         BigDecimal wallet = user.getWallet().subtract(sum);
         if(sum.compareTo(BigDecimal.ZERO) <= 0.00 || wallet.compareTo(BigDecimal.ZERO) <= 0) {
             return false;
@@ -97,33 +100,35 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    @Transactional
     @Override
-    public void updateCreditorWallet(BigDecimal transactionAmount, Long creditorId) {
-        Users creditor = getUser(creditorId);
+    public void updateCreditorWallet(BigDecimal transactionAmount, User creditor) {
         BigDecimal wallet = creditor.getWallet();
         creditor.setWallet(wallet.add(transactionAmount));
         userRepository.save(creditor);
     }
 
+    @Transactional
     @Override
-    public void updateDebtorWallet(BigDecimal transactionAmount, Long debtorId) {
-        Users debtor = getUser(debtorId);
+    public void updateDebtorWallet(BigDecimal transactionAmount, User debtor) {
         BigDecimal wallet = debtor.getWallet();
         debtor.setWallet(wallet.subtract(transactionAmount));
         userRepository.save(debtor);
     }
 
+    @Transactional
     @Override
     public void updatePassword(UserPrincipal currentUser, String password) {
-        Users user = getUser(currentUser.getId());
+        User user = getUser(currentUser.getId());
         user.setPassword(bCryptPasswordEncoder.encode(password));
         userRepository.save(user);
     }
 
+    @Transactional
     @Override
     public Boolean updateEmail(UserPrincipal currentUser, String newEmail) {
         if(getEmailAvailability(newEmail)) {
-            Users user = getUser(currentUser.getId());
+            User user = getUser(currentUser.getId());
             //also change the contact email link to this userid
             if(!contactServiceImpl.getEmailAvailability(currentUser.getEmail())) {
                 contactServiceImpl.updateEmail(newEmail, currentUser.getEmail());

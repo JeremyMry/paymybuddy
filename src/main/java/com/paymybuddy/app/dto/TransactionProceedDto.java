@@ -1,16 +1,16 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
 import javax.validation.constraints.Digits;
 import java.math.BigDecimal;
 
-public class TransactionProceed {
+public class TransactionProceedDto {
 
     private Long creditor;
     private String reference;
     @Digits(integer=5, fraction=2)
     private BigDecimal amount;
 
-    public TransactionProceed(Long creditor, String reference, BigDecimal amount) {
+    public TransactionProceedDto(Long creditor, String reference, BigDecimal amount) {
         this.creditor = creditor;
         this.reference = reference;
         this.amount = amount;

@@ -2,8 +2,9 @@ package com.paymybuddy.app.service.impl;
 
 import com.paymybuddy.app.exception.ResourceNotFoundException;
 import com.paymybuddy.app.model.Contact;
-import com.paymybuddy.app.DTO.ContactSummary;
-import com.paymybuddy.app.DTO.ContactUpdate;
+import com.paymybuddy.app.dto.ContactSummaryDto;
+import com.paymybuddy.app.dto.ContactUpdateDto;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.repository.ContactRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -13,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Transactional
 @Service
 public class ContactServiceImpl implements IContactService {
 
@@ -24,7 +23,7 @@ public class ContactServiceImpl implements IContactService {
     ContactRepository contactRepository;
 
     @Autowired
-    UserRepository userRepository;
+    UserServiceImpl userService;
 
     @Autowired
     Logger logger;
@@ -48,43 +47,39 @@ public class ContactServiceImpl implements IContactService {
     public Boolean getEmailAvailability(String email) { return !contactRepository.existsByEmail(email); }
 
     @Override
-    public List<Contact> findAllByCurrentUser(Long userId) { return contactRepository.findAllByCurrentUser(userId); }
-
-    @Override
-    public List<ContactSummary> getAllContacts(UserPrincipal currentUser) {
-        List<Contact> contactList = findAllByCurrentUser(currentUser.getId());
-        List<ContactSummary> contactSummaryList = new ArrayList<>();
-        contactList.forEach(contact -> {
-            ContactSummary contactSummary = new ContactSummary(contact.getEmail(), contact.getFirstName());
-            contactSummaryList.add(contactSummary);
-        });
-        return contactSummaryList;
+    public List<Contact> getAllContacts(UserPrincipal currentUser) {
+        return currentUser.getContactList();
     }
 
+    @Transactional
     @Override
-    public Boolean createContact(UserPrincipal currentUser, ContactSummary contactSummary) {
-        if(userRepository.existsByEmail(contactSummary.getEmail())) {
-            contactRepository.save(new Contact(contactSummary.getEmail(), contactSummary.getFirstName(), currentUser.getId()));
+    public Boolean createContact(UserPrincipal currentUser, ContactSummaryDto contactSummaryDto) {
+        if(!userService.getEmailAvailability(contactSummaryDto.getEmail())) {
+            User user = UserPrincipal.create(currentUser);
+            Contact contact = new Contact(contactSummaryDto.getEmail(), contactSummaryDto.getFirstName(), user);
+            contactRepository.save(contact);
             return true;
         } else {
-            userRepository.existsByEmail(contactSummary.getEmail());
+            userService.getEmailAvailability(contactSummaryDto.getEmail());
             return false;
         }
     }
 
+    @Transactional
     @Override
-    public void updateContactFirstName(UserPrincipal currentUser, ContactUpdate contactUpdate) {
-        Contact updatedContact = getContact(contactUpdate.getId());
-        List<Contact> contactList = findAllByCurrentUser(currentUser.getId());
+    public void updateContactFirstName(UserPrincipal currentUser, ContactUpdateDto contactUpdateDto) {
+        Contact updatedContact = getContact(contactUpdateDto.getId());
+        List<Contact> contactList = currentUser.getContactList();
         contactList.forEach(contact -> {
             if(contact.getEmail().equals(updatedContact.getEmail())) {
-                updatedContact.setFirstName(contactUpdate.getNewFirstName());
+                updatedContact.setFirstName(contactUpdateDto.getNewFirstName());
                 logger.info("CONTACT UPDATED");
                 contactRepository.save(updatedContact);
             }
         });
     }
 
+    @Transactional
     @Override
     public void updateEmail(String email, String oldEmail) {
         Contact contact = getContactByEmail(oldEmail);
@@ -92,10 +87,11 @@ public class ContactServiceImpl implements IContactService {
         contactRepository.save(contact);
     }
 
+    @Transactional
     @Override
     public void deleteContact(UserPrincipal currentUser, Long contactId) {
         Contact deleteContact = getContact(contactId);
-        List<Contact> contactList = contactRepository.findAllByCurrentUser(currentUser.getId());
+        List<Contact> contactList = currentUser.getContactList();
         contactList.forEach(contact -> {
             if(contact.getId().equals(deleteContact.getId())) {
                 logger.info("CONTACT DELETED");

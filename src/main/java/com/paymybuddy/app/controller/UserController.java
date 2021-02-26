@@ -1,7 +1,7 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.UserProfile;
-import com.paymybuddy.app.DTO.UserSummary;
+import com.paymybuddy.app.dto.UserProfileDto;
+import com.paymybuddy.app.dto.UserSummaryDto;
 import com.paymybuddy.app.security.CurrentUser;
 import com.paymybuddy.app.security.UserPrincipal;
 import com.paymybuddy.app.service.impl.UserServiceImpl;
@@ -24,12 +24,12 @@ public class UserController {
     Logger logger;
 
     @GetMapping("/findUser")
-    public ResponseEntity<UserProfile> getUserProfile(@RequestParam("email") String email) {
+    public ResponseEntity<UserProfileDto> getUserProfile(@RequestParam("email") String email) {
         return new ResponseEntity<>(userServiceImpl.getUserProfile(email), HttpStatus.OK);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserSummary> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<UserSummaryDto> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
         return new ResponseEntity<>(userServiceImpl.getCurrentUser(currentUser), HttpStatus.OK);
     }

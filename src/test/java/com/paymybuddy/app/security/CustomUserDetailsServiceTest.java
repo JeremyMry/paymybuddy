@@ -1,6 +1,8 @@
 package com.paymybuddy.app.security;
 
-import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.model.Contact;
+import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.repository.UserRepository;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,7 +31,10 @@ public class CustomUserDetailsServiceTest {
     // test the loadUserByUsername method / Must return an UserDetails based on the existing user
     @Test
     public void loadUserByUsernameTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "abc", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "abc", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userDetailsService.loadUserByUsername("paulo"),  UserPrincipal.create(user));
@@ -47,7 +54,10 @@ public class CustomUserDetailsServiceTest {
     // test the loadUserById method / Must return an UserDetails based on the existing user id
     @Test
     public void loadUserByIdTest() {
-        Users user = new Users("paul", "doe", "paulo", "pdoe@testmail.com", "abc", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("paul", "doe", "paulo", "pdoe@testmail.com", "abc", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
 
         Assertions.assertEquals(userDetailsService.loadUserById(1L), UserPrincipal.create(user));

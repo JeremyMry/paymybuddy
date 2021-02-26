@@ -1,8 +1,9 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.TransactionProceed;
+import com.paymybuddy.app.dto.TransactionProceedDto;
+import com.paymybuddy.app.model.Contact;
 import com.paymybuddy.app.model.Transaction;
-import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.repository.TransactionRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.security.UserPrincipal;
@@ -20,6 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -42,12 +45,16 @@ public class TransactionControllerTest {
     // test the transaction create controller / must create the transaction and return an HttpStatus.CREATED
     @Test
     public void createTransactionTest() {
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
         BigDecimal bigDecimal = new BigDecimal(450);
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", bigDecimal);
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", bigDecimal, contactList, transactionMadeList, transactionReceivedList);
+        User user2 = new User("john", "doe", "john", "jdoe@testmail.com", "pwd", bigDecimal, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        Users user2 = new Users("john", "doe", "john", "jdoe@testmail.com", "pwd", bigDecimal);
         userRepository.save(user2);
-        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", BigDecimal.TEN);
+
+        TransactionProceedDto transactionProceed = new TransactionProceedDto(2L, "debt", BigDecimal.TEN);
 
         Assertions.assertEquals(transactionController.createTransaction(UserPrincipal.create(user), transactionProceed), new ResponseEntity<>(HttpStatus.CREATED));
     }
@@ -55,11 +62,15 @@ public class TransactionControllerTest {
     // test the transaction create controller with incorrect values / must return an HttpStatus.BAD_REQUEST
     @Test
     public void createTransactionBadRequestTest() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        List<Contact> contactList = new ArrayList<>();
+        List<Transaction> transactionMadeList = new ArrayList<>();
+        List<Transaction> transactionReceivedList = new ArrayList<>();
+        User user = new User("bob", "doe", "bobby", "bdoe@testmail.com", "pwd",BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
+        User user2 = new User("john", "doe", "john", "jdoe@testmail.com", "pwd", BigDecimal.ZERO, contactList, transactionMadeList, transactionReceivedList);
         userRepository.save(user);
-        Users user2 = new Users("john", "doe", "john", "jdoe@testmail.com", "pwd", BigDecimal.ZERO);
         userRepository.save(user2);
-        TransactionProceed transactionProceed = new TransactionProceed(2L, "debt", BigDecimal.ZERO);
+
+        TransactionProceedDto transactionProceed = new TransactionProceedDto(2L, "debt", BigDecimal.ZERO);
 
         Assertions.assertEquals(transactionController.createTransaction(UserPrincipal.create(user), transactionProceed), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
@@ -79,14 +90,22 @@ public class TransactionControllerTest {
     // test the get all transactions made controller / must return a LIst of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionMade() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        User user = new User();
+        User user2 = new User();
         userRepository.save(user);
-        Users user1 = new Users("john", "doe", "johnny", "jdoe@testmail.com", "pwd", BigDecimal.ZERO);
-        userRepository.save(user1);
-        Transaction transaction = new Transaction("debt", BigDecimal.TEN, 2L, 1L);
+        userRepository.save(user2);
+
+        BigDecimal amount = new BigDecimal("100.00");
+        BigDecimal amount2 = new BigDecimal("20.00");
+        TransactionProceedDto transactionProceed = new TransactionProceedDto(2L, "debt", amount);
+        TransactionProceedDto transactionProceed2 = new TransactionProceedDto(2L, "new debt", amount2);
+        Transaction transaction = new Transaction(transactionProceed.getReference(),  transactionProceed.getAmount(), user2, user);
+        Transaction transaction2 = new Transaction(transactionProceed2.getReference(),  transactionProceed2.getAmount(), user2, user);
         transactionRepository.save(transaction);
-        Transaction transaction1 = new Transaction("debt", BigDecimal.TEN, 2L, 1L);
-        transactionRepository.save(transaction1);
+        transactionRepository.save(transaction2);
+
+        user.getTransactionMadeList().add(transaction);
+        user.getTransactionMadeList().add(transaction2);
 
         Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getBody()).size(), 2);
         Assertions.assertEquals(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
@@ -95,7 +114,7 @@ public class TransactionControllerTest {
     // test the get all transactions made controller when there is no transactions made / must return an empty List of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionMadeWhenThereIsNone() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        User user = new User();
         userRepository.save(user);
 
         Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsMade(UserPrincipal.create(user)).getBody()).size(), 0);
@@ -116,14 +135,22 @@ public class TransactionControllerTest {
     // test the get all transactions received controller / must return a List of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionDone() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        User user = new User();
+        User user2 = new User();
         userRepository.save(user);
-        Users user1 = new Users("john", "doe", "johnny", "jdoe@testmail.com", "pwd", BigDecimal.ZERO);
-        userRepository.save(user1);
-        Transaction transaction = new Transaction("debt", BigDecimal.TEN, 1L, 2L);
+        userRepository.save(user2);
+
+        BigDecimal amount = new BigDecimal("100.00");
+        BigDecimal amount2 = new BigDecimal("20.00");
+        TransactionProceedDto transactionProceed = new TransactionProceedDto(1L, "debt", amount);
+        TransactionProceedDto transactionProceed2 = new TransactionProceedDto(1L, "new debt", amount2);
+        Transaction transaction = new Transaction(transactionProceed.getReference(),  transactionProceed.getAmount(), user, user2);
+        Transaction transaction2 = new Transaction(transactionProceed2.getReference(),  transactionProceed2.getAmount(), user, user2);
         transactionRepository.save(transaction);
-        Transaction transaction1 = new Transaction("debt", BigDecimal.TEN, 1L, 2L);
-        transactionRepository.save(transaction1);
+        transactionRepository.save(transaction2);
+
+        user.getTransactionReceivedList().add(transaction);
+        user.getTransactionReceivedList().add(transaction2);
 
         Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getBody()).size(), 2);
         Assertions.assertEquals(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getStatusCode(), HttpStatus.OK);
@@ -132,7 +159,7 @@ public class TransactionControllerTest {
     // test the get all transactions received controller when there is no transactions received / must return an empty List of transaction and an HttpStatus.OK
     @Test
     public void getAllTransactionDoneWhenThereIsNone() {
-        Users user = new Users("bob", "doe", "bobby", "bdoe@testmail.com", "pwd", BigDecimal.ZERO);
+        User user = new User();
         userRepository.save(user);
 
         Assertions.assertEquals(Objects.requireNonNull(transactionController.getAllTransactionsReceived(UserPrincipal.create(user)).getBody()).size(), 0);

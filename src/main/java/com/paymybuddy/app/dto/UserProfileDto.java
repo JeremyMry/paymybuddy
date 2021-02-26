@@ -1,11 +1,11 @@
-package com.paymybuddy.app.DTO;
+package com.paymybuddy.app.dto;
 
-public class UserProfile {
+public class UserProfileDto {
 
     private String username;
     private String email;
 
-    public UserProfile(String username, String email) {
+    public UserProfileDto(String username, String email) {
         this.username = username;
         this.email = email;
     }

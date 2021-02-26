@@ -1,6 +1,6 @@
 package com.paymybuddy.app.security;
 
-import com.paymybuddy.app.model.Users;
+import com.paymybuddy.app.model.User;
 import com.paymybuddy.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String usernameOrEmail)
             throws UsernameNotFoundException {
         // Let people login with either username or email
-        Users user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found with username or email : " + usernameOrEmail)
                 );
@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // This method is used by JWTAuthenticationFilter
     @Transactional
     public UserDetails loadUserById(Long id) {
-        Users user = userRepository.findById(id).orElseThrow(
+        User user = userRepository.findById(id).orElseThrow(
                 () -> new UsernameNotFoundException("User not found with id : " + id)
         );
 

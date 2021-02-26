@@ -1,8 +1,8 @@
 package com.paymybuddy.app.controller;
 
-import com.paymybuddy.app.DTO.JwtAuthenticationResponse;
-import com.paymybuddy.app.DTO.LoginRequest;
-import com.paymybuddy.app.DTO.SignUpRequest;
+import com.paymybuddy.app.dto.JwtAuthenticationResponseDto;
+import com.paymybuddy.app.dto.LoginRequestDto;
+import com.paymybuddy.app.dto.SignUpRequestDto;
 import com.paymybuddy.app.service.impl.AuthServiceImpl;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,14 @@ public class AuthController {
     Logger logger;
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthenticationResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtAuthenticationResponseDto> authenticateUser(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         logger.info("YOU ARE LOGGED");
-        return new ResponseEntity<>(authService.authenticateUser(loginRequest), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(authService.authenticateUser(loginRequestDto), HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<HttpStatus> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if(authService.registerUser(signUpRequest)) {
+    public ResponseEntity<HttpStatus> registerUser(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
+        if(authService.registerUser(signUpRequestDto)) {
             logger.info("ACCOUNT CREATED");
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } else {
