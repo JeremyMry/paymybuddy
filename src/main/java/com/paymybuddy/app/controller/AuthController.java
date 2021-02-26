@@ -25,12 +25,14 @@ public class AuthController {
     @Autowired
     Logger logger;
 
+    // Log the user and send a jwt
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponseDto> authenticateUser(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         logger.info("YOU ARE LOGGED");
         return new ResponseEntity<>(authService.authenticateUser(loginRequestDto), HttpStatus.ACCEPTED);
     }
 
+    // register a new user
     @PostMapping("/signup")
     public ResponseEntity<HttpStatus> registerUser(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
         if(authService.registerUser(signUpRequestDto)) {

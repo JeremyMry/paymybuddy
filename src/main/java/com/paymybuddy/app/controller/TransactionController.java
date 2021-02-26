@@ -22,18 +22,21 @@ public class TransactionController {
     @Autowired
     Logger logger;
 
+    // Display all the transactions made by the current user
     @GetMapping("/made")
     public ResponseEntity<List> getAllTransactionsMade(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
         return new ResponseEntity<>(transactionService.getAllTransactionsMade(currentUser), HttpStatus.OK);
     }
 
+    // Display all the transactions received by the current user
     @GetMapping("/received")
     public ResponseEntity<List> getAllTransactionsReceived(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
         return new ResponseEntity<>(transactionService.getAllTransactionsReceived(currentUser), HttpStatus.OK);
     }
 
+    // create a new transaction
     @PostMapping("/create")
     public ResponseEntity<HttpStatus> createTransaction(@CurrentUser UserPrincipal currentUser, @RequestBody TransactionProceedDto transactionProceedDto) {
         if(transactionService.transactionComputation(currentUser, transactionProceedDto)) {

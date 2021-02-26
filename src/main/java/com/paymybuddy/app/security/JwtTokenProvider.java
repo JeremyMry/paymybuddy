@@ -15,6 +15,7 @@ public class JwtTokenProvider {
     @Autowired
     Logger logger;
 
+
     @Value("${app.jwtSecret}")
     String jwtSecret;
 

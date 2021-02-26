@@ -49,6 +49,7 @@ public class UserPrincipal implements UserDetails {
         this.transactionReceivedList = transactionReceivedList;
     }
 
+    // create an UserPrincipal from an user
     public static UserPrincipal create(User user) {
 
         return new UserPrincipal(
@@ -65,6 +66,7 @@ public class UserPrincipal implements UserDetails {
         );
     }
 
+    // create an user from an UserPrincipal
     public static User create(UserPrincipal userPrincipal) {
 
         return new User(

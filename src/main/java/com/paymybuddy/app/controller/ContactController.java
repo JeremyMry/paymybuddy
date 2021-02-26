@@ -23,12 +23,14 @@ public class ContactController {
     @Autowired
     Logger logger;
 
+    // Display all the contacts of the current user
     @GetMapping("/all")
     public ResponseEntity<List> getAllContacts(@CurrentUser UserPrincipal currentUser) {
         logger.info("GET REQUEST | SUCCESS");
         return new ResponseEntity<>(contactServiceImpl.getAllContacts(currentUser), HttpStatus.OK);
     }
 
+    // add a new contact to the current user
     @PostMapping("/create")
     public ResponseEntity<HttpStatus> createContact(@CurrentUser UserPrincipal currentUser, @RequestBody ContactSummaryDto contactSummaryDto) {
         if(contactServiceImpl.createContact(currentUser, contactSummaryDto)) {
@@ -41,12 +43,14 @@ public class ContactController {
 
     }
 
+    // Modify the contact firstName
     @PutMapping("/put")
     public ResponseEntity<HttpStatus> updateContactFirstName(@CurrentUser UserPrincipal currentUser, @RequestBody ContactUpdateDto contactUpdateDto) {
         contactServiceImpl.updateContactFirstName(currentUser, contactUpdateDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // delete a contact
     @DeleteMapping("/delete")
     public ResponseEntity<HttpStatus> deleteContact(@CurrentUser UserPrincipal currentUser, @RequestBody Long contactId) {
         contactServiceImpl.deleteContact(currentUser, contactId);
