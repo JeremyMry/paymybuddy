@@ -18,7 +18,8 @@ com.mysql.cj.jdbc.Driver-class-name="yourdriver" (mariadb can also be used)
 spring.datasource.url="yoururl"
 spring.datasource.username="yourusername"
 spring.datasource.password="yourpassword"
-Create the database but don't add any table, you can find all database-related data in application properties file
+
+Create the database and the tables using the db-scheme.sql file
 
 ENDPOINTS:
 
